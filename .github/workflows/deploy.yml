@@ -1,0 +1,30 @@
+name: Deploy
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ${{ matrix.os }}
+    environment: Compile
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+      fail-fast: true
+    steps:
+      - name: 📦 Prepate Git Repo
+        uses: actions/checkout@v2
+
+      - name: 📦 Install npm
+        uses: actions/setup-node@v2.1.5
+        with:
+          node-version: 14
+          architecture: x64
+
+      - name: 📦 Package Executable
+        run: |
+          npm run make
+
+      # todo: deploy to releases
