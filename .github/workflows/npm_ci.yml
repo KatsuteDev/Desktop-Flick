@@ -1,0 +1,25 @@
+name: npm CI
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  npm_ci:
+    name: npm CI
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📦 Prepate Git Repo
+        uses: actions/checkout@v2
+
+      - name: 📦 Install npm
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+          architecture: x64
+
+      - name: ✔ Test with npm
+        run: |
+          npm ci
+          npm run build --if-present
