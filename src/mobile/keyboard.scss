@@ -1,0 +1,66 @@
+* {
+    font-family: Open Sans, Helvetica, Verdana, Arial, sans-serif;
+}
+
+html, body {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
+
+body {
+    position: relative;
+    margin: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#flick {
+    display: flex;
+    flex-direction: row;
+}
+
+flick-button {
+    width: calc(100vw/5);
+    max-width: 200px;
+    height: calc(100vw/10);
+    min-height: 50px;
+    max-height: 100px;
+
+    &.double {
+        height: 100px;
+    }
+
+    > span {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+    }
+
+    span[slot=display] {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    span{
+        &[slot=left], &[slot=right], &[slot=top], &[slot=bottom], &[slot=center] {
+            display: none;
+        }
+    }
+}
+
+#left, #right {
+    display: flex;
+    flex-direction: column;
+}
+
+#center {
+    > div.keyset {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+}
