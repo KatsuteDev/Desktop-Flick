@@ -10,11 +10,3 @@
     <a href="https://github.com/Katsute/DesktopFlick/blob/main/LICENSE"><img title="license" src="https://img.shields.io/github/license/Katsute/DesktopFlick"></a>
     <br />
 </div>
-
-## Overview
-
-// todo
-
-## Setup
-
-// todo
