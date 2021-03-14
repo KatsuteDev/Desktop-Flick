@@ -12,3 +12,29 @@
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
+const input: HTMLInputElement = document.getElementById("text-input") as HTMLInputElement;
+
+// lock input
+input.onblur = () => input.focus();
+input.focus();
+
+// display input
+input.oninput = () => {
+    // todo: sent to client
+    console.log(input.value);
+}
+
+// push input
+input.onkeydown = (e:KeyboardEvent) => {
+    if(e.key == "Enter"){
+        // todo: send to client
+        input.value = "";
+    }
+}
+
+new EventSource("event").onmessage = function(event: MessageEvent){
+    const data: string = event.data;
+
+    // todo: set code event
+    // todo: on ready event
+}

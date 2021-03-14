@@ -2,18 +2,18 @@
     "name": "desktopflick",
     "version": "1.0.0",
     "description": "Finally, a Japanese flick keyboard for deskop.",
+    "priavte": true,
     "main": "dist/desktop/main.js",
     "scripts": {
         "// -- dev -- //": "",
-        "clean": "rimraf dist & rimraf out & rimraf build.js",
+        "clean": "rimraf dist & rimraf out",
         "prune": "npm prune",
         "update": "npm update",
         "// -- build -- //": "",
         "build:html": "copyfiles -u 1 src/**/*.html dist",
         "build:sass": "sass src:dist/",
         "build:typescript": "tsc --outDir dist",
-        "build:build": "tsc build.ts && node build.js",
-        "build": "npm run build:build & npm run build:typescript & npm run build:sass & npm run build:html",
+        "build": "npm run build:typescript & npm run build:sass & npm run build:html",
         "prepare": "npm run clean && npm run build",
         "// -- run -- //": "",
         "start:dev": "npm run prepare && electron .",
@@ -37,6 +37,7 @@
     "homepage": "https://github.com/Katsute/DesktopFlick#readme",
     "dependencies": {
         "electron-squirrel-startup": "^1.0.0",
+        "qrcode": "^1.4.4",
         "robotjs": "^0.6.0"
     },
     "devDependencies": {
@@ -45,6 +46,7 @@
         "@electron-forge/maker-rpm": "^6.0.0-beta.54",
         "@electron-forge/maker-squirrel": "^6.0.0-beta.54",
         "@electron-forge/maker-zip": "^6.0.0-beta.54",
+        "@types/qrcode": "^1.4.0",
         "copyfiles": "^2.4.1",
         "electron": "^12.0.1",
         "rimraf": "^3.0.2",

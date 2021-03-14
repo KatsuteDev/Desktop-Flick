@@ -1,0 +1,31 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="stylesheet" href="desktop.css">
+    </head>
+    <body>
+        <div id="login">
+            <p>Scan this QR code to pair.</p>
+            <img id="img-qr">
+            <p id="url"></p>
+        </div>
+        <div id="code" class="hidden can-hide">
+            <p>Enter pairing code.</p>
+            <input id="mobile-code" maxlength="4">
+        </div>
+
+        <script>
+            window.api.receive("init", (data) => {
+                document.getElementById("img-qr").src = data.qr;
+                document.getElementById("url").innerHTML = data.url;
+            });
+
+            window.api.receive("readyCode", (data) => {
+                document.getElementById("code").classList.remove("hidden");
+            });
+        </script>
+    </body>
+</html>

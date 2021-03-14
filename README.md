@@ -1,8 +1,5 @@
 <div align="center">
     <h1>Desktop Flick</h1>
-    <a href="https://github.com/Katsute/DesktopFlick/blob/main/README.md">English</a>
-    ·
-    <a href="https://github.com/Katsute/DesktopFlick/blob/main/README-jp.md">日本語</a>
     <p>Finally, a Japanese flick keyboard for desktop.</p>
     <a href="https://github.com/Katsute/DesktopFlick/actions/workflows/npm_ci.yml"><img src="https://github.com/Katsute/DesktopFlick/workflows/npm%20CI/badge.svg" title="npm CI"></a>
     <a href="https://github.com/Katsute/DesktopFlick/actions/workflows/deploy.yml"><img src="https://github.com/Katsute/DesktopFlick/workflows/Deploy/badge.svg" title="Deploy"></a>
@@ -18,3 +15,11 @@
 ## Setup
 
 // todo
+
+<hr>
+
+### Contributing
+
+- Build using `npm run build` or `npm run prepare`
+- Test builds using `npm run start:dev`
+- Package builds using `npm run make`
