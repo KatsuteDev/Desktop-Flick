@@ -12,5 +12,14 @@
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
-const input: HTMLInputElement = document.getElementById("input") as HTMLInputElement;
 
+import { contextBridge, ipcRenderer } from "electron";
+
+contextBridge.exposeInMainWorld("api", {
+    send: (channel: string, data:Object) => {
+        ipcRenderer.send(channel, data);
+    },
+    receive: (channel: string, func: CallableFunction) => {
+        ipcRenderer.on(channel, (event, ...args) => func(...args));
+    }
+});
