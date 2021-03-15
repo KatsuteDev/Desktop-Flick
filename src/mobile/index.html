@@ -7,8 +7,18 @@
     </head>
     <body>
         <noscript>This keyboard needs javascript to run.</noscript>
-        <input id="text-input">
+        <div id="code">
+            <h1>Pairing Code:</h1>
+            <span>{{ code }}</span>
+        </div>
+        <div id="input" class="hidden">
+            <input id="text-input">
+        </div>
 
         <script src="mobile.js"></script>
+        <script>
+            if({{ login }})
+                showInput();
+        </script>
     </body>
 </html>

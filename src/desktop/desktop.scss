@@ -40,11 +40,16 @@ img {
 }
 
 input {
-    font-size: 1.5rem;
-    letter-spacing: 1rem;
-    text-transform: uppercase;
-    font-family: monospace;
+    outline: none;
+
+    font-family: "Consolas" monospace;
     text-align: center;
+    text-transform: uppercase;
+    font-size: 2rem;
+    padding-left: 1rem;
+    letter-spacing: 1rem;
+
+    width: 12rem;
 }
 
 .can-hide{

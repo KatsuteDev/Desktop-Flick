@@ -13,13 +13,12 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-import { app, BrowserWindow, ipcMain, Menu, Tray } from "electron";
+import { app, BrowserWindow, ipcMain } from "electron";
 import path from "path";
 import http from "http";
+import fs from "fs";
 
 let window: BrowserWindow;
-
-const port: number = 6565;
 
 function main(): void {
     // exit if another instance exists
@@ -41,6 +40,30 @@ function main(): void {
 
 }
 
+const port: number = 6565;
+const refresh: number = 1000;
+let mobileIndex: string, mobileCSS: string, mobileCSSmap: string, mobileJS: string;
+
+/* init files */ {
+    fs.readFile(path.join(__dirname, "../mobile/index.html"), "utf8", (err, data: string) => {
+        mobileIndex = data;
+    });
+
+    fs.readFile(path.join(__dirname, "../mobile/mobile.css"), "utf8", (err, data: string) => {
+        mobileCSS = data;
+    });
+
+    fs.readFile(path.join(__dirname, "../mobile/mobile.css.map"), "utf8", (err, data: string) => {
+        mobileCSSmap = data;
+    });
+
+    fs.readFile(path.join(__dirname, "../mobile/mobile.js"), "utf8", (err, data: string) => {
+        mobileJS = data;
+    });
+}
+
+let server: http.Server;
+
 function authenticateAndStart(): void {
     const inet = require("os").networkInterfaces();
     const ip: string = Object.keys(inet) // get IPv4 external
@@ -51,7 +74,7 @@ function authenticateAndStart(): void {
 
     require("qrcode").toDataURL(url, {margin: 0, width: 150}, (err: Error, qr_base64: string) => {
         // authentication window
-        const auth = new BrowserWindow({
+        let auth = window = new BrowserWindow({
             width: 300,
             height: 450,
             minWidth: 300,
@@ -66,7 +89,6 @@ function authenticateAndStart(): void {
         });
         auth.removeMenu();
         auth.setTitle("DesktopFlick Pairing")
-        auth.setAlwaysOnTop(true);
         auth.loadFile(path.join(__dirname, "auth.html"));
         auth.once("ready-to-show", () => {
             auth.webContents.send("init", {qr: qr_base64, url: url})
@@ -74,85 +96,96 @@ function authenticateAndStart(): void {
         });
 
         // authentication handler
-        let codeReady = false;
-        const server = http.createServer((req:http.IncomingMessage, res: http.ServerResponse) => {
+        let lockedConn: string | null;
+        let codes: Map<string,string> = new Map();
+        server = http.createServer((req:http.IncomingMessage, res: http.ServerResponse) => {
+
+            const ip: string = req.socket.remoteAddress || "";
+
+            // deny conn if already paired
+            if(lockedConn && lockedConn != ip){
+                res.writeHead(401, { 'Content-Type': 'text/html' });
+                res.end("connection denied by server");
+                return;
+            }
+
             const url: string = req.url || "";
+            const authenticated: string = lockedConn && lockedConn === ip ? "true" : "false";
 
             if(url === "/"){
-                if(!codeReady){
-                    auth.webContents.send("readyCode");
-                    codeReady = true;
+                auth.webContents.send("readyCode");
+
+                // generate code
+                if(!(ip in codes)){
+                    let code;
+                    do{
+                        code = generateCode(4);
+                    }while(code in codes.values)
+                    codes.set(ip, code);
                 }
+                let code: string = codes.get(ip) || "";
 
+                res.writeHead(200, { 'Content-Type': 'text/html' });
+                res.end(mobileIndex.replace("{{ code }}", code).replace("{{ login }}", authenticated));
             }else if(url === "/mobile.css"){
-
+                res.writeHead(200, { 'Content-Type': 'text/css' });
+                res.end(mobileCSS);
             }else if(url === "/mobile.css.map"){
-
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(mobileCSSmap);
             }else if(url === "/mobile.js"){
-
+                res.writeHead(200, { 'Content-Type': 'text/javascript' });
+                res.end(mobileJS);
             }else if(url === "/event"){
-
-            }else if(url === "/input"){
+                res.writeHead(200, {
+                    'Content-Type': 'text/event-stream',
+                    'Cache-Control': 'no-cache',
+                    'Connection': 'keep-alive'
+                });
+                return setInterval(() => {
+                    res.write(`retry: ${refresh}\nid: ${Date.now()}\ndata: ${authenticated}\n\n`);
+                }, refresh);
+            }else if(url === "/input" && authenticated){
 
             }
-            res.end();
+            return;
         });
 
+        // code handler
+        {
+            ipcMain.on("code", (e: Electron.IpcMainEvent, args: string) => {
+                if(lockedConn) return; // already paired
+                const code = args.toUpperCase();
+
+                for(let [k, v] of codes.entries()){
+                    if(code === v){
+                        lockedConn == k;
+                        setTimeout(() => {
+                            launch();
+                        }, 1000);
+                        ipcMain.removeAllListeners("code");
+                        break;
+                    }
+                }
+            });
+        }
         server.listen(port);
     });
 }
 
+const codeChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+function generateCode(length: number){
+    let result = "";
+    for(let i = 0; i < length; i++)
+        result += codeChars.charAt(Math.floor(Math.random() * 36));
+    return result;
+}
+
 function launch(): void {
-    
+    console.log("opened!");
+
+    window.loadFile(path.join(__dirname, "index.html"));
 }
-
-/*
-let tray: Tray;
-
-function createWindow(): void {
-    window = new BrowserWindow({
-        width: 1280,
-        height: 720,
-        webPreferences: {
-            nodeIntegration: true
-        }
-    });
-    window.loadFile("index.html");
-
-    /* todo
-    window.on("minimize", (e: Event) => {
-        e.preventDefault();
-        window.hide();
-        window.setSkipTaskbar(true);
-        tray = createTray();
-    });
-
-    window.on("restore", (e: Event) => {
-        window.show();
-        window.setSkipTaskbar(false);
-        tray.destroy();
-    });
-    *//*
-}
-
-function createTray(): Tray {
-    let icon:Tray = new Tray("electron.ico");
-    const menu = Menu.buildFromTemplate([
-        {
-            label: "Show", click: () => window.show()
-        },
-        {
-            label: "Exit", click: () => {
-                app.quit();
-            }
-        }
-    ]);
-
-    icon.on("double-click", window.show);
-    icon.setToolTip("test");
-    icon.setContextMenu(menu);
-    return icon;
-}
-*/
 
 main();
