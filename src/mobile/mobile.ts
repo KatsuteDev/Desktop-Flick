@@ -30,16 +30,19 @@ input.onkeydown = (e:KeyboardEvent) => {
 }
 
 function pushInput(): void {
-
+    const value = input.value || "";
 }
 
-new EventSource("event").onmessage = function(event: MessageEvent){
+// event stream
+const stream = new EventSource("event");
+stream.onmessage = function(event: MessageEvent){
     const data: string = event.data;
-    console.log(event);
-    // todo: on ready event switch divs
+    if(data === "true")
+        showInput();
 }
 
 function showInput(): void{
+    stream.close();
     document.getElementById("code")?.classList.add("hidden");
     document.getElementById("input")?.classList.remove("hidden");
     input.focus();

@@ -7,7 +7,7 @@
     </head>
     <body>
         <noscript>This keyboard needs javascript to run.</noscript>
-        <div id="code">
+        <div id="code" class="hidden">
             <h1>Pairing Code:</h1>
             <span>{{ code }}</span>
         </div>
@@ -19,6 +19,8 @@
         <script>
             if({{ login }})
                 showInput();
+            else
+                document.getElementById("code").classList.remove("hidden");
         </script>
     </body>
 </html>
