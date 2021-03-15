@@ -26,6 +26,25 @@
             window.api.receive("readyCode", (data) => {
                 document.getElementById("code").classList.remove("hidden");
             });
+
+            // code input
+            const input = document.getElementById("mobile-code");
+            const mask = /[^a-zA-Z0-9]+/g;
+
+            input.oninput = () => {
+                input.value = input.value.replaceAll(mask, ""); // remove invalid
+                if(input.value.length == 4)
+                    pushCode();
+            }
+
+            input.onkeydown = (e) => {
+                if(e.key == "Enter" && input.value.length == 4)
+                    pushCode();
+            }
+
+            function pushCode(){
+                window.api.send("code", input.value);
+            }
         </script>
     </body>
 </html>

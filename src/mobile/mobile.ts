@@ -19,22 +19,28 @@ input.onblur = () => input.focus();
 input.focus();
 
 // display input
-input.oninput = () => {
-    // todo: sent to client
-    console.log(input.value);
-}
+input.oninput = () => { pushInput(); }
 
 // push input
 input.onkeydown = (e:KeyboardEvent) => {
     if(e.key == "Enter"){
-        // todo: send to client
+        pushInput();
         input.value = "";
     }
 }
 
+function pushInput(): void {
+
+}
+
 new EventSource("event").onmessage = function(event: MessageEvent){
     const data: string = event.data;
+    console.log(event);
+    // todo: on ready event switch divs
+}
 
-    // todo: set code event
-    // todo: on ready event
+function showInput(): void{
+    document.getElementById("code")?.classList.add("hidden");
+    document.getElementById("input")?.classList.remove("hidden");
+    input.focus();
 }
