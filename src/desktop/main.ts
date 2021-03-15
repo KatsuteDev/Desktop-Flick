@@ -99,7 +99,6 @@ function authenticateAndStart(): void {
         let lockedConn: string | null;
         let codes: Map<string,string> = new Map();
         server = http.createServer((req:http.IncomingMessage, res: http.ServerResponse) => {
-
             const ip: string = req.socket.remoteAddress || "";
 
             // deny conn if already paired
@@ -116,14 +115,14 @@ function authenticateAndStart(): void {
                 auth.webContents.send("readyCode");
 
                 // generate code
-                if(!(ip in codes)){
+                if(!codes.has(ip)){
                     let code;
-                    do{
+                    do
                         code = generateCode(4);
-                    }while(code in codes.values)
+                    while(code in codes.values)
                     codes.set(ip, code);
                 }
-                let code: string = codes.get(ip) || "";
+                let code: string = codes.get(ip)!;
 
                 res.writeHead(200, { 'Content-Type': 'text/html' });
                 res.end(mobileIndex.replace("{{ code }}", code).replace("{{ login }}", authenticated));
@@ -143,7 +142,7 @@ function authenticateAndStart(): void {
                     'Connection': 'keep-alive'
                 });
                 return setInterval(() => {
-                    res.write(`retry: ${refresh}\nid: ${Date.now()}\ndata: ${authenticated}\n\n`);
+                    res.write(`retry: ${refresh}\nid: ${Date.now()}\ndata: ${lockedConn && lockedConn === ip ? "true" : "false"}\n\n`);
                 }, refresh);
             }else if(url === "/input" && authenticated){
 
@@ -159,7 +158,7 @@ function authenticateAndStart(): void {
 
                 for(let [k, v] of codes.entries()){
                     if(code === v){
-                        lockedConn == k;
+                        lockedConn = k;
                         setTimeout(() => {
                             launch();
                         }, 1000);
@@ -183,9 +182,14 @@ function generateCode(length: number){
 }
 
 function launch(): void {
-    console.log("opened!");
-
+    window.hide();
     window.loadFile(path.join(__dirname, "index.html"));
+    window.setTitle("DesktopFlick");
+    window.setSize(640, 360);
+    window.setMinimumSize(300,270);
+    setTimeout(() => {
+        window.show();
+    }, 1000);
 }
 
 main();
