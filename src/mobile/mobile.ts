@@ -19,23 +19,25 @@ input.onblur = () => input.focus();
 input.focus();
 
 // display input
-input.oninput = () => { pushInput(); }
+input.oninput = () => {
+    const value: string = input.value || "";
+    const request: XMLHttpRequest = new XMLHttpRequest();
+    request.open("GET", "input?m=update&q=" + encodeURIComponent(value), true);
+    request.send(null);
+}
 
 // push input
 input.onkeydown = (e:KeyboardEvent) => {
     if(e.key == "Enter"){
-        pushInput();
+        const request: XMLHttpRequest = new XMLHttpRequest();
+        request.open("GET", "input?m=submit", true);
+        request.send(null);
         input.value = "";
     }
 }
-
-function pushInput(): void {
-    const value = input.value || "";
-}
-
 // event stream
-const stream = new EventSource("event");
-stream.onmessage = function(event: MessageEvent){
+const stream: EventSource = new EventSource("event");
+stream.onmessage = function(event: MessageEvent): void{
     const data: string = event.data;
     if(data === "true")
         showInput();
@@ -45,5 +47,6 @@ function showInput(): void{
     stream.close();
     document.getElementById("code")?.classList.add("hidden");
     document.getElementById("input")?.classList.remove("hidden");
+    document.title = "DesktopFlick";
     input.focus();
 }

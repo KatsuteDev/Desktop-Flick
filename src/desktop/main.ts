@@ -14,6 +14,8 @@
 */
 
 import { app, BrowserWindow, ipcMain } from "electron";
+import { keyboard } from "@nut-tree/nut-js";
+import robot from "robotjs";
 import path from "path";
 import http from "http";
 import fs from "fs";
@@ -70,29 +72,33 @@ function authenticateAndStart(): void {
         .map(x => inet[x].filter((x: { family: string; internal: boolean; }) => x.family === "IPv4" && !x.internal)[0])
         .filter(x => x)[0].address;
 
-    const url: string = "http://" + ip + ':' + port;
+    const sevurl: string = "http://" + ip + ':' + port;
 
-    require("qrcode").toDataURL(url, {margin: 0, width: 150}, (err: Error, qr_base64: string) => {
+    require("qrcode").toDataURL(sevurl, {margin: 0, width: 150}, (err: Error, qr_base64: string) => {
         // authentication window
-        let auth = window = new BrowserWindow({
+        window = new BrowserWindow({
             width: 300,
             height: 450,
-            minWidth: 300,
-            minHeight: 450,
+            minWidth: 250,
+            minHeight: 100,
+            useContentSize: true, // fix min
+            center: true, // fix resize black border
+            resizable: false,
+            maximizable: false,
+            title: "DesktopFlick Pairing",
             webPreferences: {
                 nodeIntegration: true,
                 contextIsolation: true,
                 enableRemoteModule: false,
                 devTools: false, // disable dev tools
                 preload: path.join(__dirname, "interface.js")
-            }
+            },
         });
-        auth.removeMenu();
-        auth.setTitle("DesktopFlick Pairing")
-        auth.loadFile(path.join(__dirname, "auth.html"));
-        auth.once("ready-to-show", () => {
-            auth.webContents.send("init", {qr: qr_base64, url: url})
-            auth.show();
+        window.removeMenu(); // also disable dev tools
+        window.loadFile(path.join(__dirname, "auth.html"));
+        window.once("ready-to-show", () => {
+            window.webContents.send("init", {qr: qr_base64, url: sevurl});
+            window.show();
         });
 
         // authentication handler
@@ -108,11 +114,11 @@ function authenticateAndStart(): void {
                 return;
             }
 
-            const url: string = req.url || "";
+            const path: string = req.url || "";
             const authenticated: string = lockedConn && lockedConn === ip ? "true" : "false";
 
-            if(url === "/"){
-                auth.webContents.send("readyCode");
+            if(path === "/"){
+                window.webContents.send("readyCode");
 
                 // generate code
                 if(!codes.has(ip)){
@@ -126,16 +132,16 @@ function authenticateAndStart(): void {
 
                 res.writeHead(200, { 'Content-Type': 'text/html' });
                 res.end(mobileIndex.replace("{{ code }}", code).replace("{{ login }}", authenticated));
-            }else if(url === "/mobile.css"){
+            }else if(path === "/mobile.css"){
                 res.writeHead(200, { 'Content-Type': 'text/css' });
                 res.end(mobileCSS);
-            }else if(url === "/mobile.css.map"){
+            }else if(path === "/mobile.css.map"){
                 res.writeHead(200, { 'Content-Type': 'application/json' });
                 res.end(mobileCSSmap);
-            }else if(url === "/mobile.js"){
+            }else if(path === "/mobile.js"){
                 res.writeHead(200, { 'Content-Type': 'text/javascript' });
                 res.end(mobileJS);
-            }else if(url === "/event"){
+            }else if(path === "/event"){
                 res.writeHead(200, {
                     'Content-Type': 'text/event-stream',
                     'Cache-Control': 'no-cache',
@@ -144,10 +150,17 @@ function authenticateAndStart(): void {
                 return setInterval(() => {
                     res.write(`retry: ${refresh}\nid: ${Date.now()}\ndata: ${lockedConn && lockedConn === ip ? "true" : "false"}\n\n`);
                 }, refresh);
-            }else if(url === "/input" && authenticated){
-
+            }else if(path.startsWith("/input?") && authenticated && appReady){
+                const query: Map<string,string | null> = parseQuery(path.substr(path.indexOf('?') + 1));
+                const method: string | null | undefined = query.get("m");
+                if(method === "update")
+                    preview(query.get("q") || "");
+                else if(method === "submit")
+                    submit();
+                res.end();
+            }else{
+                res.end();
             }
-            return;
         });
 
         // code handler
@@ -174,22 +187,55 @@ function authenticateAndStart(): void {
 
 const codeChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
-function generateCode(length: number){
+function generateCode(length: number): string{
     let result = "";
     for(let i = 0; i < length; i++)
         result += codeChars.charAt(Math.floor(Math.random() * 36));
     return result;
 }
 
+function parseQuery(raw: string): Map<string,string | null> {
+    const OUT: Map<string,string | null> = new Map();
+    const pairs: string[] = raw.split('&');
+    for(const pair of pairs){
+        pair: String;
+        if(pair.includes('=')){
+            const kv: string[] = pair.split('=');
+            OUT.set(
+                decodeURIComponent(kv[0]),
+                kv.length == 2 ? decodeURIComponent(kv[1]) : null
+            );
+        }
+    }
+    return OUT;
+}
+
+
+let appReady: boolean = false;
 function launch(): void {
     window.hide();
-    window.loadFile(path.join(__dirname, "index.html"));
-    window.setTitle("DesktopFlick");
+    // revert auth window
+    window.setResizable(true);
+    window.setMaximizable(true);
     window.setSize(640, 360);
-    window.setMinimumSize(300,270);
+    window.setMinimumSize(250, 125);
+
+    window.setTitle("DesktopFlick");
+    window.loadFile(path.join(__dirname, "index.html"));
     setTimeout(() => {
+        appReady = true;
         window.show();
     }, 1000);
+}
+
+let buffer: string = "";
+function preview(text: string): void{
+    window.webContents.send("preview", buffer = text);
+}
+
+function submit(): void {
+    robot.typeString(buffer);
+    preview(buffer = "");
 }
 
 main();
