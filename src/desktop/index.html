@@ -7,6 +7,12 @@
         <link rel="stylesheet" href="desktop.css">
     </head>
     <body>
-
+        <p id="preview"></p>
+        <script>
+            const preview = document.getElementById("preview");
+            window.api.receive("preview", (data) => {
+                preview.innerHTML = data;
+            });
+        </script>
     </body>
 </html>

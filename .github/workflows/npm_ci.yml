@@ -22,4 +22,4 @@ jobs:
       - name: ✔ Test with npm
         run: |
           npm ci
-          npm run build
+          npm run prepare
