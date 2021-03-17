@@ -14,11 +14,13 @@
 */
 
 import { app, BrowserWindow, ipcMain } from "electron";
-import { keyboard } from "@nut-tree/nut-js";
+import clipboardy from "clipboardy";
 import robot from "robotjs";
 import path from "path";
 import http from "http";
 import fs from "fs";
+
+const darwin: boolean = process.platform === "darwin";
 
 let window: BrowserWindow;
 
@@ -233,9 +235,14 @@ function preview(text: string): void{
     window.webContents.send("preview", buffer = text);
 }
 
+const ctrl = darwin ? "command" : "control";
+
 function submit(): void {
-    robot.typeString(buffer);
+    // DO NOT TRY TO SAVE CLIPBOARD TO VARIABLE: FILE COPY FILL CRASH READ
+    clipboardy.writeSync(buffer); // copy
+    robot.keyTap('v', ctrl); // paste
     preview(buffer = "");
+    clipboardy.writeSync(""); // clear clipboard
 }
 
 main();
