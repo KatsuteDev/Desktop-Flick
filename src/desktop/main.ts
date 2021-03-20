@@ -20,8 +20,6 @@ import path from "path";
 import http from "http";
 import fs from "fs";
 
-const darwin: boolean = process.platform === "darwin";
-
 let window: BrowserWindow;
 
 function main(): void {
@@ -95,6 +93,7 @@ function authenticateAndStart(): void {
                 devTools: false, // disable dev tools
                 preload: path.join(__dirname, "interface.js")
             },
+            show: false
         });
         window.removeMenu(); // also disable dev tools
         window.loadFile(path.join(__dirname, "auth.html"));
@@ -126,7 +125,7 @@ function authenticateAndStart(): void {
                 if(!codes.has(ip)){
                     let code;
                     do
-                        code = generateCode(4);
+                        code = Code.generate(4);
                     while(code in codes.values)
                     codes.set(ip, code);
                 }
@@ -153,12 +152,12 @@ function authenticateAndStart(): void {
                     res.write(`retry: ${refresh}\nid: ${Date.now()}\ndata: ${lockedConn && lockedConn === ip ? "true" : "false"}\n\n`);
                 }, refresh);
             }else if(path.startsWith("/input?") && authenticated && appReady){
-                const query: Map<string,string | null> = parseQuery(path.substr(path.indexOf('?') + 1));
+                const query: Map<string,string | null> = HTTP.parseQuery(path.substr(path.indexOf('?') + 1));
                 const method: string | null | undefined = query.get("m");
                 if(method === "update")
-                    preview(query.get("q") || "");
+                    Input.preview(query.get("q") || "");
                 else if(method === "submit")
-                    submit();
+                    Input.submit();
                 res.end();
             }else{
                 res.end();
@@ -187,31 +186,39 @@ function authenticateAndStart(): void {
     });
 }
 
-const codeChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+abstract class Code {
 
-function generateCode(length: number): string{
-    let result = "";
-    for(let i = 0; i < length; i++)
-        result += codeChars.charAt(Math.floor(Math.random() * 36));
-    return result;
-}
+    // disallow vowels to prevent words
+    private static codeChars = "BCDFGHJKLMNPQRSTVWXZ0123456789";
 
-function parseQuery(raw: string): Map<string,string | null> {
-    const OUT: Map<string,string | null> = new Map();
-    const pairs: string[] = raw.split('&');
-    for(const pair of pairs){
-        pair: String;
-        if(pair.includes('=')){
-            const kv: string[] = pair.split('=');
-            OUT.set(
-                decodeURIComponent(kv[0]),
-                kv.length == 2 ? decodeURIComponent(kv[1]) : null
-            );
-        }
+    public static generate(length: number): string{
+        let result = "";
+        for(let i = 0; i < length; i++)
+            result += Code.codeChars.charAt(Math.floor(Math.random() * 30));
+        return result;
     }
-    return OUT;
+
 }
 
+abstract class HTTP {
+
+    public static parseQuery(raw: string): Map<string,string | null> {
+        const OUT: Map<string,string | null> = new Map();
+        const pairs: string[] = raw.split('&');
+        for(const pair of pairs){
+            pair: String;
+            if(pair.includes('=')){
+                const kv: string[] = pair.split('=');
+                OUT.set(
+                    decodeURIComponent(kv[0]),
+                    kv.length == 2 ? decodeURIComponent(kv[1]) : null
+                );
+            }
+        }
+        return OUT;
+    }
+
+}
 
 let appReady: boolean = false;
 function launch(): void {
@@ -230,19 +237,24 @@ function launch(): void {
     }, 1000);
 }
 
-let buffer: string = "";
-function preview(text: string): void{
-    window.webContents.send("preview", buffer = text);
-}
+abstract class Input {
 
-const ctrl = darwin ? "command" : "control";
+    private static ctrl: string = process.platform === "darwin" ? "command" : "control";
 
-function submit(): void {
-    // DO NOT TRY TO SAVE CLIPBOARD TO VARIABLE: FILE COPY FILL CRASH READ
-    clipboardy.writeSync(buffer); // copy
-    robot.keyTap('v', ctrl); // paste
-    preview(buffer = "");
-    clipboardy.writeSync(""); // clear clipboard
+    private static buffer: string = "";
+
+    public static preview(text: string): void {
+        window.webContents.send("preview", Input.buffer = text);
+    }
+
+    public static submit(): void {
+        // DO NOT TRY TO SAVE CLIPBOARD TO VARIABLE: FILE COPY FILL CRASH READ
+        clipboardy.writeSync(Input.buffer); // copy
+        robot.keyTap('v', Input.ctrl); // paste
+        Input.preview(Input.buffer = "");
+        clipboardy.writeSync(""); // clear clipboard
+    }
+
 }
 
 main();
