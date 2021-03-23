@@ -41,6 +41,7 @@ stream.onmessage = function(event: MessageEvent): void{
     const data: string = event.data;
     if(data === "true")
         showInput();
+    // todo: on change url
 }
 
 function showInput(): void{

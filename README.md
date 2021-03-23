@@ -10,7 +10,7 @@
 
 ## Overview
 
-// todo
+Desktop Flick uses your mobile keyboard and mirrors the output onto the desktop.
 
 ## Setup
 
