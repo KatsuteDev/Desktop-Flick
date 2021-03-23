@@ -15,7 +15,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
 }
 
 div {
@@ -30,6 +30,7 @@ p {
     -moz-user-select    : none;
     -webkit-user-select : none;
     text-align: right;
+    margin: 0;
 }
 
 img {
@@ -67,7 +68,6 @@ input {
 
 p#preview {
     font-size: 1.75rem;
-    margin: 0;
     max-width: calc(100% - 2rem);
     direction: rtl;
     overflow: hidden;

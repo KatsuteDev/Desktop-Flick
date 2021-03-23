@@ -16,218 +16,349 @@
 import { app, BrowserWindow, ipcMain, Menu, Notification, Tray } from "electron";
 import clipboardy from "clipboardy";
 import robot from "robotjs";
+import qrcode from "qrcode";
 import path from "path";
 import http from "http";
 import fs from "fs";
 
 const name: string = "Desktop Flick";
+const DEFAULT_PORT = 7272;
 
-let window: BrowserWindow;
-let tray: Tray; // declare here to prevent garbage collector
-let onTop: boolean = false;
-let quit: boolean = false;
+abstract class Application {
 
-function main(): void {
-    // exit if another instance exists
-    if(!app.requestSingleInstanceLock()){
-        app.quit();
-        return;
-    }else{
-        // refocus if existing instance, otherwise create new instance
-        app.on("second-instance", () => {
-            if(window){
-                if(window.isMinimized())
-                    window.restore();
-                window.focus();
-            }
-        });
+    private static window: BrowserWindow; // active window
 
-        app.on('window-all-closed', () => {
-            if (process.platform !== 'darwin')
-                app.quit();
-        })
+    private static aot: boolean = false; // always on top
+    private static tray: Tray;
 
-        app.whenReady().then(() => {
-            tray = new Tray(path.join(__dirname, "../../temp.ico"));
-            const menu: Menu = Menu.buildFromTemplate([
-                {
-                    label: "Always On Top",
-                    type: "checkbox",
-                    click: () => window.setAlwaysOnTop(onTop = !onTop)
-                },
-                {
-                    type: "separator"
-                },
-                {
-                    label: "Quit",
-                    type: "normal",
-                    click: () => {
-                        quit = true;
-                        app.quit();
-                    }
+    public static main(): void {
+        // exit if another instance exists
+        if(!app.requestSingleInstanceLock()){
+            app.quit();
+            return;
+        }else{
+            // refocus if existing instance, otherwise create new instance
+            app.on("second-instance", () => {
+                if(Application.window){
+                    if(Application.window.isMinimized())
+                        Application.window.restore();
+                    Application.window.focus();
                 }
-            ]);
-            tray.setToolTip(name);
-            tray.setContextMenu(menu);
-            tray.on("click", () => window.show());
+            });
 
-            authenticateAndStart();
-        });
+            app.on('window-all-closed', () => {
+                if (process.platform !== 'darwin')
+                    app.quit();
+            })
+
+            app.whenReady().then(() => {
+                // initialize tray
+                Application.tray = new Tray(path.join(__dirname, "../../temp.ico"));
+                const menu: Menu = Menu.buildFromTemplate([
+                    {
+                        label: "Always On Top",
+                        type: "checkbox",
+                        click: () => Application.window.setAlwaysOnTop(Application.aot = !Application.aot)
+                    },
+                    {
+                        label: "Change Port",
+                        type: "normal",
+                        click: () => PortPopup.portPopup()
+                    },
+                    {
+                        type: "separator"
+                    },
+                    {
+                        label: "Quit",
+                        type: "normal",
+                        click: () => {
+                            Main.setQuitting(true);
+                            app.quit();
+                        }
+                    }
+                ]);
+                Application.tray.setToolTip(name);
+                Application.tray.setContextMenu(menu);
+                Application.tray.on("click", () => Application.window.show());
+                // start application
+                Authenticator.authenticateAndStart(DEFAULT_PORT);
+            });
+        }
+
+    }
+
+    public static isAlwaysOnTop(): boolean {
+        return Application.aot;
+    }
+
+    public static setActiveWindow(window: BrowserWindow): void {
+        Application.window = window;
+    }
+
+    public static getActiveWindow(): BrowserWindow {
+        return Application.window;
     }
 
 }
 
-const port: number = 6565;
-const refresh: number = 1000;
 let mobileIndex: string, mobileCSS: string, mobileCSSmap: string, mobileJS: string;
-
 /* init files */ {
-    fs.readFile(path.join(__dirname, "../mobile/index.html"), "utf8", (err, data: string) => {
-        mobileIndex = data;
-    });
+    fs.readFile(
+        path.join(__dirname, "../mobile/index.html"),
+        "utf8",
+        (_: NodeJS.ErrnoException | null, data: string) => {
+            mobileIndex = data;
+        }
+    );
 
-    fs.readFile(path.join(__dirname, "../mobile/mobile.css"), "utf8", (err, data: string) => {
-        mobileCSS = data;
-    });
+    fs.readFile(
+        path.join(__dirname, "../mobile/mobile.css"),
+        "utf8",
+        (_: NodeJS.ErrnoException | null, data: string) => {
+            mobileCSS = data;
+        }
+    );
 
-    fs.readFile(path.join(__dirname, "../mobile/mobile.css.map"), "utf8", (err, data: string) => {
-        mobileCSSmap = data;
-    });
+    fs.readFile(
+        path.join(__dirname, "../mobile/mobile.css.map"),
+        "utf8",
+        (_: NodeJS.ErrnoException | null, data: string) => {
+            mobileCSSmap = data;
+        }
+    );
 
-    fs.readFile(path.join(__dirname, "../mobile/mobile.js"), "utf8", (err, data: string) => {
-        mobileJS = data;
-    });
+    fs.readFile(
+        path.join(__dirname, "../mobile/mobile.js"),
+        "utf8",
+        (_: NodeJS.ErrnoException | null, data: string) => {
+            mobileJS = data;
+        }
+    );
 }
 
-let server: http.Server;
+abstract class Authenticator {
 
-function authenticateAndStart(): void {
-    const inet = require("os").networkInterfaces();
-    const ip: string = Object.keys(inet) // get IPv4 external
-        .map(x => inet[x].filter((x: { family: string; internal: boolean; }) => x.family === "IPv4" && !x.internal)[0])
-        .filter(x => x)[0].address;
+    private static readonly refresh: number = 1000; // event stream refresh rate
 
-    const sevurl: string = "http://" + ip + ':' + port;
+    private static current_port: number;
+    private static current_url: string;
 
-    require("qrcode").toDataURL(sevurl, {margin: 0, width: 150}, (err: Error, qr_base64: string) => {
-        // authentication window
-        window = new BrowserWindow({
-            width: 300,
-            height: 450,
-            minWidth: 250,
-            minHeight: 100,
+    private static server: http.Server; // active server
+
+    public static authenticateAndStart(port: number): void {
+        if(port === Authenticator.current_port)
+            return; // skip if no change
+        else if(Authenticator.server)
+            Authenticator.server.close(); // if new then close existing server
+
+        const ip: string = Authenticator.getIP();
+
+        const sevurl: string = Authenticator.current_url = "http://" + ip + ':' + port;
+
+        qrcode.toDataURL(sevurl, {margin: 0, width: 150}, (_: Error, qr_base64: string) => {
+            // authentication window
+            let window = Application.getActiveWindow();
+            if(!window) // todo: move below to outer const?
+                Application.setActiveWindow(
+                    window = new BrowserWindow({
+                        width: 300,
+                        height: 450,
+                        minWidth: 250,
+                        minHeight: 100,
+                        useContentSize: true, // fix min
+                        center: true, // fix resize black border
+                        resizable: false,
+                        maximizable: false,
+                        title: name + " Pairing",
+                        webPreferences: {
+                            nodeIntegration: true,
+                            contextIsolation: true,
+                            enableRemoteModule: false,
+                            devTools: false, // disable dev tools
+                            preload: path.join(__dirname, "interface.js")
+                        },
+                        show: false
+                    })
+                );
+            window.removeMenu(); // also disable dev tools
+            window.loadFile(path.join(__dirname, "auth.html"));
+            window.once("ready-to-show", () => {
+                window.webContents.send("init", {qr: qr_base64, url: sevurl});
+                window.show();
+            });
+
+            // authentication handler
+            let lockedConn: string | null;
+            let codes: Map<string,string> = new Map();
+            const server: http.Server = Authenticator.server = http.createServer((req:http.IncomingMessage, res: http.ServerResponse) => {
+                const ip: string = req.socket.remoteAddress || "";
+
+                // deny conn if already paired
+                if(lockedConn && lockedConn != ip){
+                    res.writeHead(401, { 'Content-Type': 'text/html' });
+                    res.end("connection denied by server");
+                    return;
+                }
+
+                const path: string = req.url || "";
+                const authenticated: string = lockedConn && lockedConn === ip ? "true" : "false";
+
+                if(path === "/"){
+                    window.webContents.send("readyCode");
+
+                    // generate code
+                    if(!codes.has(ip)){
+                        let code;
+                        do
+                            code = Code.generate(4);
+                        while(code in codes.values)
+                        codes.set(ip, code);
+                    }
+                    let code: string = codes.get(ip)!;
+
+                    res.writeHead(200, { 'Content-Type': 'text/html' });
+                    res.end(mobileIndex.replace("{{ code }}", code).replace("{{ login }}", authenticated));
+                }else if(path === "/mobile.css"){
+                    res.writeHead(200, { 'Content-Type': 'text/css' });
+                    res.end(mobileCSS);
+                }else if(path === "/mobile.css.map"){
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    res.end(mobileCSSmap);
+                }else if(path === "/mobile.js"){
+                    res.writeHead(200, { 'Content-Type': 'text/javascript' });
+                    res.end(mobileJS);
+                }else if(path === "/event"){
+                    res.writeHead(200, {
+                        'Content-Type': 'text/event-stream',
+                        'Cache-Control': 'no-cache',
+                        'Connection': 'keep-alive'
+                    });
+                    return setInterval(() => { // if url then redirect
+                        res.write(`retry: ${Authenticator.refresh}\nid: ${Date.now()}\ndata: ${lockedConn && lockedConn === ip ? "true" : "false"}\n\n`);
+                    }, Authenticator.refresh);
+                }else if(path.startsWith("/input?") && authenticated && Main.isAppReady()){
+                    const query: Map<string,string | null> = HTTP.parseQuery(path.substr(path.indexOf('?') + 1));
+                    const method: string | null | undefined = query.get("m");
+                    if(method === "update")
+                        Input.preview(query.get("q") || "");
+                    else if(method === "submit")
+                        Input.submit();
+                    res.end();
+                }else{
+                    res.end();
+                }
+            });
+
+            // code handler
+            {
+                ipcMain.on("code", (_: Electron.IpcMainEvent, args: string) => {
+                    if(lockedConn) return; // already paired
+                    const code = args.toUpperCase();
+
+                    for(let [k, v] of codes.entries()){
+                        if(code === v){
+                            lockedConn = k;
+                            setTimeout(() => {
+                                Main.launch();
+                            }, 1000);
+                            ipcMain.removeAllListeners("code");
+                            break;
+                        }
+                    }
+                });
+            }
+
+            server.listen(Authenticator.current_port = port);
+        });
+    }
+
+    private static getIP(): string {
+        const inet = require("os").networkInterfaces(); // must be require, import causes null ts issue
+        return Object.keys(inet) // get IPv4 external
+            .map(x => inet[x].filter((x: { family: string; internal: boolean; }) => x.family === "IPv4" && !x.internal)[0])
+            .filter(x => x)[0].address;
+    }
+
+    public static getCurrentPort(): number {
+        return Authenticator.current_port;
+    }
+
+    public static getCurrentURL(): string {
+        return Authenticator.current_url;
+    }
+
+}
+
+abstract class PortPopup {
+
+    private static w: number = 200;
+    private static h: number = 300;
+
+    private static MIN_PORT: number = 1;
+    private static MAX_PORT: number = 65535;
+
+    private static popup: BrowserWindow | null; // active popup
+
+    public static portPopup(): void {
+        if(PortPopup.popup){ // if already exists then focus
+            if(PortPopup.popup.isMinimized())
+                PortPopup.popup.restore();
+            PortPopup.popup.focus();
+            return;
+        }
+        const popup: BrowserWindow = PortPopup.popup = new BrowserWindow({
+            width       : PortPopup.w,
+            height      : PortPopup.h,
+            minWidth    : PortPopup.w,
+            minHeight   : PortPopup.h,
+            maxWidth    : PortPopup.w,
+            maxHeight   : PortPopup.h,
             useContentSize: true, // fix min
             center: true, // fix resize black border
             resizable: false,
             maximizable: false,
-            title: name + " Pairing",
+            title: "Change Port",
+            parent: Application.getActiveWindow(),
             webPreferences: {
                 nodeIntegration: true,
                 contextIsolation: true,
                 enableRemoteModule: false,
-                devTools: false, // disable dev tools
+                devTools: false,
                 preload: path.join(__dirname, "interface.js")
             },
             show: false
         });
-        window.removeMenu(); // also disable dev tools
-        window.loadFile(path.join(__dirname, "auth.html"));
-        window.once("ready-to-show", () => {
-            window.webContents.send("init", {qr: qr_base64, url: sevurl});
-            window.show();
+        popup.removeMenu();
+        popup.loadFile(path.join(__dirname, "port.html"));
+
+        popup.once("ready-to-show", () => {
+            popup.webContents.send("init", Authenticator.getCurrentPort());
+            popup.show();
         });
 
-        // authentication handler
-        let lockedConn: string | null;
-        let codes: Map<string,string> = new Map();
-        server = http.createServer((req:http.IncomingMessage, res: http.ServerResponse) => {
-            const ip: string = req.socket.remoteAddress || "";
-
-            // deny conn if already paired
-            if(lockedConn && lockedConn != ip){
-                res.writeHead(401, { 'Content-Type': 'text/html' });
-                res.end("connection denied by server");
-                return;
-            }
-
-            const path: string = req.url || "";
-            const authenticated: string = lockedConn && lockedConn === ip ? "true" : "false";
-
-            if(path === "/"){
-                window.webContents.send("readyCode");
-
-                // generate code
-                if(!codes.has(ip)){
-                    let code;
-                    do
-                        code = Code.generate(4);
-                    while(code in codes.values)
-                    codes.set(ip, code);
-                }
-                let code: string = codes.get(ip)!;
-
-                res.writeHead(200, { 'Content-Type': 'text/html' });
-                res.end(mobileIndex.replace("{{ code }}", code).replace("{{ login }}", authenticated));
-            }else if(path === "/mobile.css"){
-                res.writeHead(200, { 'Content-Type': 'text/css' });
-                res.end(mobileCSS);
-            }else if(path === "/mobile.css.map"){
-                res.writeHead(200, { 'Content-Type': 'application/json' });
-                res.end(mobileCSSmap);
-            }else if(path === "/mobile.js"){
-                res.writeHead(200, { 'Content-Type': 'text/javascript' });
-                res.end(mobileJS);
-            }else if(path === "/event"){
-                res.writeHead(200, {
-                    'Content-Type': 'text/event-stream',
-                    'Cache-Control': 'no-cache',
-                    'Connection': 'keep-alive'
-                });
-                return setInterval(() => {
-                    res.write(`retry: ${refresh}\nid: ${Date.now()}\ndata: ${lockedConn && lockedConn === ip ? "true" : "false"}\n\n`);
-                }, refresh);
-            }else if(path.startsWith("/input?") && authenticated && appReady){
-                const query: Map<string,string | null> = HTTP.parseQuery(path.substr(path.indexOf('?') + 1));
-                const method: string | null | undefined = query.get("m");
-                if(method === "update")
-                    Input.preview(query.get("q") || "");
-                else if(method === "submit")
-                    Input.submit();
-                res.end();
-            }else{
-                res.end();
-            }
+        popup.on("close", () => {
+            PortPopup.popup = null;
         });
 
-        // code handler
-        {
-            ipcMain.on("code", (e: Electron.IpcMainEvent, args: string) => {
-                if(lockedConn) return; // already paired
-                const code = args.toUpperCase();
+        ipcMain.on("port", (_: Electron.IpcMainEvent, args: string) => {
+            const port: number = parseInt(args);
 
-                for(let [k, v] of codes.entries()){
-                    if(code === v){
-                        lockedConn = k;
-                        setTimeout(() => {
-                            launch();
-                        }, 1000);
-                        ipcMain.removeAllListeners("code");
-                        break;
-                    }
-                }
-            });
-        }
-        server.listen(port);
-    });
+            if(port >= this.MIN_PORT && port <= this.MAX_PORT)
+                Authenticator.authenticateAndStart(port);
+
+            popup.destroy();
+            PortPopup.popup = null;
+        });
+    }
 }
 
 abstract class Code {
 
     // disallow vowels to prevent words
-    private static codeChars = "BCDFGHJKLMNPQRSTVWXZ0123456789";
+    private static codeChars: string = "BCDFGHJKLMNPQRSTVWXZ0123456789";
 
     public static generate(length: number): string{
-        let result = "";
+        let result: string = "";
         for(let i = 0; i < length; i++)
             result += Code.codeChars.charAt(Math.floor(Math.random() * 30));
         return result;
@@ -241,7 +372,6 @@ abstract class HTTP {
         const OUT: Map<string,string | null> = new Map();
         const pairs: string[] = raw.split('&');
         for(const pair of pairs){
-            pair: String;
             if(pair.includes('=')){
                 const kv: string[] = pair.split('=');
                 OUT.set(
@@ -255,67 +385,85 @@ abstract class HTTP {
 
 }
 
-let firstMin: boolean = true;
-let appReady: boolean = false;
-function launch(): void {
-    window.hide();
-    // revert auth window
-    window.setResizable(true);
-    window.setMaximizable(true);
-    window.setSize(500, 200);
-    window.setMinimumSize(300, 100);
+abstract class Main {
 
-    window.setTitle(name);
-    window.loadFile(path.join(__dirname, "index.html"));
+    private static appReady: boolean = false; // tell server if app is running
 
-    window.on("minimize", (evt: Event) => {
-        evt.preventDefault();
+    private static firstMin: boolean = true; // show notification only for first minimization
+
+    private static quitting: boolean = false; // if quit should close instead of minimize
+
+    public static launch(): void {
+        const window: BrowserWindow = Application.getActiveWindow();
         window.hide();
-        if(firstMin)
-            minimizeTooltip();
-    });
+        // revert auth window
+        window.setResizable(true);
+        window.setMaximizable(true);
+        window.setSize(500, 200);
+        window.setMinimumSize(300, 100);
 
-    window.on("close", (evt: Event) => {
-        if(!quit){
+        window.setTitle(name);
+        window.loadFile(path.join(__dirname, "index.html"));
+
+        window.on("minimize", (evt: Event) => {
             evt.preventDefault();
             window.hide();
-            if(firstMin)
-                minimizeTooltip();
-        }
-        return false;
-    });
+            if(Main.firstMin)
+                Main.minimizeTooltip();
+        });
 
-    setTimeout(() => {
-        appReady = true;
-        window.show();
-        window.setAlwaysOnTop(onTop);
+        window.on("close", (evt: Event) => {
+            if(!Main.quitting){
+                evt.preventDefault();
+                window.hide();
+                if(Main.firstMin)
+                    Main.minimizeTooltip();
+            }
+            return false;
+        });
 
-        new Notification({
+        setTimeout(() => {
+            Main.appReady = true;
+            window.show();
+            window.setAlwaysOnTop(Application.isAlwaysOnTop());
+
+            new Notification({
+                title: name,
+                body: "Right click tray icon to access more options."
+            }).show();
+        }, 1000);
+    }
+
+    private static notification: Notification;
+
+    private static minimizeTooltip(): void {
+        Main.firstMin = false;
+        Main.notification = new Notification({
             title: name,
-            body: "Right click tray icon to access more options."
-        }).show();
-    }, 1000);
-}
+            body: "Application has been minimized to system tray. Right click the icon to quit."
+        });
+        Main.notification.on("click", () => Application.getActiveWindow().show());
+        Main.notification.show();
+    }
 
-let not: Notification;
-function minimizeTooltip(): void {
-    firstMin = false;
-    not = new Notification({
-        title: name,
-        body: "Application has been minimized to system tray. Right click the icon to quit."
-    });
-    not.on("click", () => window.show());
-    not.show();
+    public static isAppReady(): boolean {
+        return Main.appReady;
+    }
+
+    public static setQuitting(quitting: boolean = true): void{
+        Main.quitting = quitting;
+    }
+
 }
 
 abstract class Input {
 
-    private static ctrl: string = process.platform === "darwin" ? "command" : "control";
+    private static readonly ctrl: string = process.platform === "darwin" ? "command" : "control";
 
     private static buffer: string = "";
 
     public static preview(text: string): void {
-        window.webContents.send("preview", Input.buffer = text);
+        Application.getActiveWindow().webContents.send("preview", Input.buffer = text);
     }
 
     public static submit(): void {
@@ -328,4 +476,4 @@ abstract class Input {
 
 }
 
-main();
+Application.main();
