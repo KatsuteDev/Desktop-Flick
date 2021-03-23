@@ -13,14 +13,19 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-import { app, BrowserWindow, ipcMain } from "electron";
+import { app, BrowserWindow, ipcMain, Menu, Notification, Tray } from "electron";
 import clipboardy from "clipboardy";
 import robot from "robotjs";
 import path from "path";
 import http from "http";
 import fs from "fs";
 
+const name: string = "Desktop Flick";
+
 let window: BrowserWindow;
+let tray: Tray; // declare here to prevent garbage collector
+let onTop: boolean = false;
+let quit: boolean = false;
 
 function main(): void {
     // exit if another instance exists
@@ -37,7 +42,37 @@ function main(): void {
             }
         });
 
-        app.whenReady().then(authenticateAndStart);
+        app.on('window-all-closed', () => {
+            if (process.platform !== 'darwin')
+                app.quit();
+        })
+
+        app.whenReady().then(() => {
+            tray = new Tray(path.join(__dirname, "../../temp.ico"));
+            const menu: Menu = Menu.buildFromTemplate([
+                {
+                    label: "Always On Top",
+                    type: "checkbox",
+                    click: () => window.setAlwaysOnTop(onTop = !onTop)
+                },
+                {
+                    type: "separator"
+                },
+                {
+                    label: "Quit",
+                    type: "normal",
+                    click: () => {
+                        quit = true;
+                        app.quit();
+                    }
+                }
+            ]);
+            tray.setToolTip(name);
+            tray.setContextMenu(menu);
+            tray.on("click", () => window.show());
+
+            authenticateAndStart();
+        });
     }
 
 }
@@ -85,7 +120,7 @@ function authenticateAndStart(): void {
             center: true, // fix resize black border
             resizable: false,
             maximizable: false,
-            title: "DesktopFlick Pairing",
+            title: name + " Pairing",
             webPreferences: {
                 nodeIntegration: true,
                 contextIsolation: true,
@@ -220,21 +255,57 @@ abstract class HTTP {
 
 }
 
+let firstMin: boolean = true;
 let appReady: boolean = false;
 function launch(): void {
     window.hide();
     // revert auth window
     window.setResizable(true);
     window.setMaximizable(true);
-    window.setSize(640, 360);
-    window.setMinimumSize(250, 125);
+    window.setSize(500, 200);
+    window.setMinimumSize(300, 100);
 
-    window.setTitle("DesktopFlick");
+    window.setTitle(name);
     window.loadFile(path.join(__dirname, "index.html"));
+
+    window.on("minimize", (evt: Event) => {
+        evt.preventDefault();
+        window.hide();
+        if(firstMin)
+            minimizeTooltip();
+    });
+
+    window.on("close", (evt: Event) => {
+        if(!quit){
+            evt.preventDefault();
+            window.hide();
+            if(firstMin)
+                minimizeTooltip();
+        }
+        return false;
+    });
+
     setTimeout(() => {
         appReady = true;
         window.show();
+        window.setAlwaysOnTop(onTop);
+
+        new Notification({
+            title: name,
+            body: "Right click tray icon to access more options."
+        }).show();
     }, 1000);
+}
+
+let not: Notification;
+function minimizeTooltip(): void {
+    firstMin = false;
+    not = new Notification({
+        title: name,
+        body: "Application has been minimized to system tray. Right click the icon to quit."
+    });
+    not.on("click", () => window.show());
+    not.show();
 }
 
 abstract class Input {

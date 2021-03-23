@@ -67,7 +67,10 @@ input {
 
 p#preview {
     font-size: 1.75rem;
-    max-width: calc(100% - 5rem);
+    margin: 0;
+    max-width: calc(100% - 2rem);
     direction: rtl;
     overflow: hidden;
+    white-space: pre;
+    text-overflow: ellipsis;
 }
