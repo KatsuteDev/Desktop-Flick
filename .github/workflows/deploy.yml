@@ -5,8 +5,8 @@ on:
     types: [published]
 
 jobs:
-  deploy:
-    name: Deploy
+  make:
+    name: Make
     runs-on: windows-latest
     environment: Compile
     steps:
@@ -21,6 +21,34 @@ jobs:
 
       - name: 📦 Package Executable
         run: |
+          npm run prepare
           npm run make
 
-      # todo: deploy to releases
+      - name: 📦 Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: artifact
+          path: out/
+
+  deploy:
+    name: Deploy
+    needs: make
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📦 Download Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: artifact
+          path: out/desktopflick-win32-x64
+
+      - name: 📦 Zip file
+        uses: papeloto/action-zip@v1
+        with:
+          files: out/desktopflick-win32-x64
+          dest: desktopflick-windows.zip
+
+      - name: 🚀 Deploy Binaries to Releases
+        uses: AButler/upload-release-assets@v2.0
+        with:
+          files: 'desktopflick-windows.zip'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
