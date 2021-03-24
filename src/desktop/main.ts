@@ -24,6 +24,8 @@ import fs from "fs";
 const name: string = "Desktop Flick";
 const DEFAULT_PORT = 7272;
 
+const icon: string = path.join(__dirname, "../icon.ico");
+
 abstract class Application {
 
     private static window: BrowserWindow; // active window
@@ -56,7 +58,7 @@ abstract class Application {
 
             app.whenReady().then(() => {
                 // initialize tray
-                Application.tray = new Tray(path.join(__dirname, "../../temp.ico"));
+                Application.tray = new Tray(icon);
                 const menu: Menu = Menu.buildFromTemplate([
                     {
                         label: "Always On Top",
@@ -184,7 +186,8 @@ abstract class Authenticator {
                             devTools: false, // disable dev tools
                             preload: path.join(__dirname, "interface.js")
                         },
-                        show: false
+                        show: false,
+                        icon: icon
                     })
                 );
                 window.removeMenu(); // also disable dev tools
@@ -353,7 +356,8 @@ abstract class PortPopup {
                 devTools: false,
                 preload: path.join(__dirname, "interface.js")
             },
-            show: false
+            show: false,
+            icon: icon
         });
         popup.removeMenu();
         popup.loadFile(path.join(__dirname, "port.html"));
