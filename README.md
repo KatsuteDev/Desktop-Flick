@@ -1,5 +1,5 @@
 <div align="center">
-    <img src="https://raw.githubusercontent.com/Katsute/DesktopFlick/main/logo.png" alt="Logo" width="100" height="100">
+    <img src="https://raw.githubusercontent.com/Katsute/DesktopFlick/main/logo.png" alt="Logo" width="175" height="175">
     <h1>Desktop Flick</h1>
     <p>Finally, a Japanese flick keyboard for desktop.</p>
     <a href="https://github.com/Katsute/DesktopFlick/actions/workflows/npm_ci.yml"><img src="https://github.com/Katsute/DesktopFlick/workflows/npm%20CI/badge.svg" title="npm CI"></a>
