@@ -47,8 +47,11 @@ abstract class Application {
             });
 
             app.on('window-all-closed', () => {
-                if (process.platform !== 'darwin')
+                if (process.platform !== 'darwin'){
+                    if(Application.tray)
+                        Application.tray.destroy();
                     app.quit();
+                }
             })
 
             app.whenReady().then(() => {
@@ -73,6 +76,7 @@ abstract class Application {
                         type: "normal",
                         click: () => {
                             Main.setQuitting(true);
+                            this.tray.destroy();
                             app.quit();
                         }
                     }
@@ -145,6 +149,9 @@ abstract class Authenticator {
 
     private static server: http.Server; // active server
 
+    private static lockedConn: string | null;
+    private static codes: Map<string,string> = new Map();
+
     public static authenticateAndStart(port: number): void {
         if(port === Authenticator.current_port)
             return; // skip if no change
@@ -153,12 +160,12 @@ abstract class Authenticator {
 
         const ip: string = Authenticator.getIP();
 
-        const sevurl: string = Authenticator.current_url = "http://" + ip + ':' + port;
+        const sevurl: string = "http://" + ip + ':' + port;
 
         qrcode.toDataURL(sevurl, {margin: 0, width: 150}, (_: Error, qr_base64: string) => {
             // authentication window
             let window = Application.getActiveWindow();
-            if(!window) // todo: move below to outer const?
+            if(!window){ // initialize only once
                 Application.setActiveWindow(
                     window = new BrowserWindow({
                         width: 300,
@@ -180,41 +187,63 @@ abstract class Authenticator {
                         show: false
                     })
                 );
-            window.removeMenu(); // also disable dev tools
-            window.loadFile(path.join(__dirname, "auth.html"));
-            window.once("ready-to-show", () => {
-                window.webContents.send("init", {qr: qr_base64, url: sevurl});
-                window.show();
-            });
+                window.removeMenu(); // also disable dev tools
+                window.loadFile(path.join(__dirname, "auth.html"));
+                window.once("ready-to-show", () => {
+                    window.webContents.send("init", {qr: qr_base64, url: sevurl});
+                    window.show();
+                });
+
+                // code handler
+                {
+                    ipcMain.on("code", (_: Electron.IpcMainEvent, args: string) => {
+                        if(Authenticator.lockedConn) return; // already paired
+                        const code = args.toUpperCase();
+
+                        for(let [k, v] of Authenticator.codes.entries()){
+                            if(code === v){
+                                Authenticator.lockedConn = k;
+                                setTimeout(() => {
+                                    Main.launch();
+                                }, 1000);
+                                ipcMain.removeAllListeners("code");
+                                break;
+                            }
+                        }
+                    });
+                }
+
+                // init url
+                Authenticator.current_url = sevurl;
+            }else{
+                window.webContents.send("init", {qr: qr_base64, url: sevurl}); // update url
+            }
 
             // authentication handler
-            let lockedConn: string | null;
-            let codes: Map<string,string> = new Map();
-            const server: http.Server = Authenticator.server = http.createServer((req:http.IncomingMessage, res: http.ServerResponse) => {
+            const server: http.Server = http.createServer((req:http.IncomingMessage, res: http.ServerResponse) => {
                 const ip: string = req.socket.remoteAddress || "";
 
-                // deny conn if already paired
-                if(lockedConn && lockedConn != ip){
+                // deny conn if already paired or server is closed
+                if(Authenticator.lockedConn && Authenticator.lockedConn != ip || Authenticator.current_url != sevurl){
                     res.writeHead(401, { 'Content-Type': 'text/html' });
                     res.end("connection denied by server");
                     return;
                 }
 
                 const path: string = req.url || "";
-                const authenticated: string = lockedConn && lockedConn === ip ? "true" : "false";
+                const authenticated: string = Authenticator.lockedConn && Authenticator.lockedConn === ip ? "true" : "false";
 
                 if(path === "/"){
                     window.webContents.send("readyCode");
 
                     // generate code
-                    if(!codes.has(ip)){
-                        let code;
-                        do
-                            code = Code.generate(4);
-                        while(code in codes.values)
-                        codes.set(ip, code);
+                    if(!Authenticator.codes.has(ip)){
+                        let code: string;
+                        do{}
+                        while((code = Code.generate(4)) in Authenticator.codes.values);
+                        Authenticator.codes.set(ip, code);
                     }
-                    let code: string = codes.get(ip)!;
+                    const code: string = Authenticator.codes.get(ip)!;
 
                     res.writeHead(200, { 'Content-Type': 'text/html' });
                     res.end(mobileIndex.replace("{{ code }}", code).replace("{{ login }}", authenticated));
@@ -233,14 +262,16 @@ abstract class Authenticator {
                         'Cache-Control': 'no-cache',
                         'Connection': 'keep-alive'
                     });
-                    return setInterval(() => { // if url then redirect
-                        res.write(`retry: ${Authenticator.refresh}\nid: ${Date.now()}\ndata: ${lockedConn && lockedConn === ip ? "true" : "false"}\n\n`);
+                    return setInterval(() => {
+                        const allowed: string = Authenticator.lockedConn && Authenticator.lockedConn === ip ? "allowed" : ""; // if authenticated
+                        const changed: string = Authenticator.current_url != sevurl ? "$changed: " + Authenticator.current_url : ""; // if url changed
+                        res.write(`retry: ${Authenticator.refresh}\nid: ${Date.now()}\ndata: ${changed != "" ? changed : allowed}\n\n`);
                     }, Authenticator.refresh);
                 }else if(path.startsWith("/input?") && authenticated && Main.isAppReady()){
                     const query: Map<string,string | null> = HTTP.parseQuery(path.substr(path.indexOf('?') + 1));
-                    const method: string | null | undefined = query.get("m");
+                    const method: string | null | undefined = query.get('m');
                     if(method === "update")
-                        Input.preview(query.get("q") || "");
+                        Input.preview(query.get('q') || "");
                     else if(method === "submit")
                         Input.submit();
                     res.end();
@@ -249,26 +280,11 @@ abstract class Authenticator {
                 }
             });
 
-            // code handler
-            {
-                ipcMain.on("code", (_: Electron.IpcMainEvent, args: string) => {
-                    if(lockedConn) return; // already paired
-                    const code = args.toUpperCase();
+            server.listen(port);
 
-                    for(let [k, v] of codes.entries()){
-                        if(code === v){
-                            lockedConn = k;
-                            setTimeout(() => {
-                                Main.launch();
-                            }, 1000);
-                            ipcMain.removeAllListeners("code");
-                            break;
-                        }
-                    }
-                });
-            }
-
-            server.listen(Authenticator.current_port = port);
+            Authenticator.server = server;
+            Authenticator.current_port = port
+            Authenticator.current_url = sevurl;
         });
     }
 
@@ -289,15 +305,26 @@ abstract class Authenticator {
 
 }
 
+ipcMain.on("port", (_: Electron.IpcMainEvent, args: string) => {
+    const port: number = parseInt(args);
+
+    if(port >= PortPopup.MIN_PORT && port <= PortPopup.MAX_PORT)
+        Authenticator.authenticateAndStart(port);
+
+    if(PortPopup.popup)
+        PortPopup.popup.destroy();
+    PortPopup.popup = null;
+});
+
 abstract class PortPopup {
 
-    private static w: number = 200;
-    private static h: number = 300;
+    private static w: number = 300;
+    private static h: number = 200;
 
-    private static MIN_PORT: number = 1;
-    private static MAX_PORT: number = 65535;
+    public static readonly MIN_PORT: number = 1;
+    public static readonly MAX_PORT: number = 65535;
 
-    private static popup: BrowserWindow | null; // active popup
+    public static popup: BrowserWindow | null; // active popup
 
     public static portPopup(): void {
         if(PortPopup.popup){ // if already exists then focus
@@ -339,17 +366,8 @@ abstract class PortPopup {
         popup.on("close", () => {
             PortPopup.popup = null;
         });
-
-        ipcMain.on("port", (_: Electron.IpcMainEvent, args: string) => {
-            const port: number = parseInt(args);
-
-            if(port >= this.MIN_PORT && port <= this.MAX_PORT)
-                Authenticator.authenticateAndStart(port);
-
-            popup.destroy();
-            PortPopup.popup = null;
-        });
     }
+
 }
 
 abstract class Code {

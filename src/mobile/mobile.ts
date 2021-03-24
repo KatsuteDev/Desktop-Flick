@@ -37,15 +37,15 @@ input.onkeydown = (e:KeyboardEvent) => {
 }
 // event stream
 const stream: EventSource = new EventSource("event");
-stream.onmessage = function(event: MessageEvent): void{
+stream.onmessage = function(event: MessageEvent): void {
     const data: string = event.data;
-    if(data === "true")
+    if(data === "allowed")
         showInput();
-    // todo: on change url
+    else if(data.startsWith("$changed: "))
+        document.location.href = data.substr(10);
 }
 
-function showInput(): void{
-    stream.close();
+function showInput(): void {
     document.getElementById("code")?.classList.add("hidden");
     document.getElementById("input")?.classList.remove("hidden");
     document.title = "DesktopFlick";
