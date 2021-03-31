@@ -30,6 +30,12 @@ jobs:
           name: artifact
           path: out/
 
+      - name: 🚀 Deploy Installer to Releases
+        uses: AButler/upload-release-assets@v2.0
+        with:
+          files: 'out/make/squirrel.windows/*.exe'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
   deploy:
     name: Deploy
     needs: make
