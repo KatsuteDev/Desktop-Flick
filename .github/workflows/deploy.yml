@@ -33,7 +33,7 @@ jobs:
       - name: 🚀 Deploy Installer to Releases
         uses: AButler/upload-release-assets@v2.0
         with:
-          files: 'out/make/squirrel.windows/*.exe'
+          files: 'out/make/squirrel.windows/x64/*.exe'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
   deploy:
