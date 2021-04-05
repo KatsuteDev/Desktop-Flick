@@ -2,7 +2,7 @@
     "name": "desktopflick",
     "version": "1.0.0",
     "description": "Finally, a Japanese flick keyboard for deskop.",
-    "priavte": true,
+    "private": true,
     "main": "dist/desktop/main.js",
     "scripts": {
         "// -- dev -- //": "",
