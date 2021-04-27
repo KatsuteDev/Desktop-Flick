@@ -37,10 +37,10 @@
     },
     "homepage": "https://github.com/Katsute/DesktopFlick#readme",
     "dependencies": {
+        "@nut-tree/nut-js": "^1.6.0",
         "clipboardy": "^2.3.0",
         "electron-squirrel-startup": "^1.0.0",
-        "qrcode": "^1.4.4",
-        "robotjs": "^0.6.0"
+        "qrcode": "^1.4.4"
     },
     "devDependencies": {
         "@electron-forge/cli": "^6.0.0-beta.54",
