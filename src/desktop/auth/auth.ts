@@ -20,6 +20,11 @@ import { App, BrowserWindow } from "electron";
 import qrcode from "qrcode";
 
 import os from "os";
+import http from "http";
+import { RequestHandler } from "./requestHandler";
+import { EventListener } from "../eventListener";
+
+export { Authenticator }
 
 type inet = {
 
@@ -33,15 +38,16 @@ const dev: boolean = true;
 const width: number  = 300;
 const height: number = 450;
 
-abstract class Authenticator {
+class Authenticator extends EventListener {
 
     private readonly port: number;
 
     constructor(port: number){
+        super();
         this.port = port;
     }
 
-    public async start(appname: string, icon: string, app: App): Promise<void> {
+    public async start(appname: string, icon: string, app: App, port: number): Promise<void> {
         if(dev)
             console.warn("Developer mode is enabled");
 
@@ -52,6 +58,8 @@ abstract class Authenticator {
                 width: 150
             }
         );
+
+        // initialize window
 
         const window: BrowserWindow = new BrowserWindow({
             title: `${appname} Pairing`,
@@ -74,15 +82,30 @@ abstract class Authenticator {
         });
         if(!dev)
             window.removeMenu(); // disable dev tools
-        
+
+        // server
+        const server: http.Server = http.createServer(new RequestHandler().handler);
+        server.listen(port);
     }
 
-    private static async getIP(): Promise<string> {
+    //
+
+    public static getIP(): string {
         const inet: NodeJS.Dict<os.NetworkInterfaceInfo[]> = os.networkInterfaces();
         return Object
             .keys(inet)
             .map(x => inet[x]!.filter((x: inet) => x.family === "IPv4" && !x.internal)[0])
             .filter(x => x)[0].address;
+    }
+
+    // disallow vowels to prevent words
+    private static readonly codeChars: string = "BCDFGHJKLMNPQRSTVWXZ0123456789";
+
+    public static generateCode(length: number): string {
+        let result: string = "";
+        for(let i = 0; i < length; i++)
+            result += this.codeChars.charAt(Math.floor(Math.random() * 30));
+        return result;
     }
 
 }
