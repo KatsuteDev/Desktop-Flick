@@ -22,6 +22,7 @@ jobs:
 
       - name: 📦 Package Executable
         run: |
+          npm i
           npm run prepare
           npm run make
 
