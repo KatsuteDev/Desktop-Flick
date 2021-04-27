@@ -1,0 +1,34 @@
+name: Temp
+
+on:
+  release:
+    types: [push]
+
+jobs:
+  make:
+    name: Make
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    environment: Compile
+    steps:
+      - name: 📦 Prepate Git Repo
+        uses: actions/checkout@v2
+
+      - name: 📦 Install npm
+        uses: actions/setup-node@v2.1.5
+        with:
+          node-version: 14
+          architecture: x64
+
+      - name: 📦 Package Executable
+        run: |
+          npm run prepare
+          npm run make
+
+      - name: 📦 Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: artifact-${{ matrix-os }}
+          path: out/
