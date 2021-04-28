@@ -1,0 +1,70 @@
+* {
+    font-family: Open Sans, Helvetica, Verdana, Arial, sans-serif;
+
+    &, &::before, &::after {
+        box-sizing: border-box;
+    }
+}
+
+html, body {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
+
+body {
+    position: relative;
+    margin: 0;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+p {
+    user-select         : none;
+    -moz-user-select    : none;
+    -webkit-user-select : none;
+    text-align: right;
+}
+
+img {
+    -o-user-drag        : none;
+    -moz-user-drag      : none;
+    -khtml-user-drag    : none;
+    -webkit-user-drag   : none;
+}
+
+#code {
+    transition          : max-height 1.5s ease-in-out !important;
+    -moz-transition     : max-height 1.5s ease-in-out !important;
+    -webkit-transition  : max-height 1.5s ease-in-out !important;
+
+    max-height: 2000px;
+    overflow: hidden;
+
+    &.hidden {
+        max-height: 0;
+    }
+
+    input {
+        outline: none;
+
+        font-family: "Consolas" monospace;
+        text-align: center;
+        text-transform: uppercase;
+        font-size: 2rem;
+        padding-left: 1rem;
+        letter-spacing: 1rem;
+
+        width: 12rem;
+    }
+}

@@ -16,11 +16,14 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import { app, BrowserWindow, ipcMain, Menu, Notification, Tray } from "electron";
+import { app, BrowserWindow, Menu, Notification, Tray } from "electron";
 import path from "path";
+import { Authenticator } from "./auth/authenticator";
+
+export { Main };
 
 const name: string = "Desktop Flick";
-const port: number = 7272;
+const port: number = 7272; // todo: configure this
 const icon: string = path.join(__dirname, "../icon.ico");
 
 const darwin: boolean = process.platform === "darwin";
@@ -29,6 +32,8 @@ abstract class Main {
 
     private static window: BrowserWindow;
     private static tray: Tray;
+
+    private static auth: Authenticator;
 
     public static async main(): Promise<void> {
         if(!app.requestSingleInstanceLock())
@@ -64,8 +69,34 @@ abstract class Main {
                     ]);
                     Main.tray.setToolTip(name);
                     Main.tray.setContextMenu(menu);
+
+                    Main.auth = new Authenticator();
+
+                    // todo: register event handlers
+                    // make sure to create new window before destroying to prevent
+                    // `window-all-closed` closure
+
+                    Main.auth.on("authenticated", (...argv: any[]) => {
+                        Main.window.hide();
+
+                        new Notification({
+                            title: name,
+                            body: "Desktop Flick is now running. Right click the tray icon to quit.",
+                            icon: icon
+                        }).show();
+                    });
+
+                    Main.auth.start(name, icon, app, port);
                 }
             );
+    }
+
+    public static setActiveWindow(window: BrowserWindow): void {
+        Main.window = window;
+    }
+
+    public static getActiveWindow(): BrowserWindow {
+        return Main.window;
     }
 
 }

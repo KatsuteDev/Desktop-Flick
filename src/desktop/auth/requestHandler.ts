@@ -16,19 +16,59 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import { IncomingMessage, RequestListener, ServerResponse } from "http";
 import { EventListener } from "../eventListener";
-import { Authenticator } from "./auth";
+import { Authenticator } from "./authenticator";
+
+import { IncomingMessage, OutgoingHttpHeaders, RequestListener, ServerResponse } from "http";
+import fs from "fs";
+import path from "path";
+import { BrowserWindow, ipcMain } from "electron";
 
 export { RequestHandler }
+
+const typeIcon  : OutgoingHttpHeaders = { "Content-Type": "image/x-icon" };
+const typeHTML  : OutgoingHttpHeaders = { "Content-Type": "text/html" };
+const typeCSS   : OutgoingHttpHeaders = { "Content-Type": "text/css" };
+const typeMAP   : OutgoingHttpHeaders = { "Content-Type": "application/json" };
+const typeJS    : OutgoingHttpHeaders = { "Content-Type": "text/javascript" };
+const typeEvent : OutgoingHttpHeaders = {
+                                            "Content-Type": "text/event-stream",
+                                            "Cache-Control": "no-cache",
+                                            "Connection": "keep-alive"
+                                        };
 
 class RequestHandler extends EventListener {
 
     private lockedIP: string | undefined;
-    private codes: Map<string,string> = new Map();
+    private readonly codes: Map<string,string> = new Map();
 
-    constructor(){
+    private static readonly icon: string = path.join(__dirname, "../../", "icon.ico");
+
+    private static readonly html    : string = fs.readFileSync(path.join(__dirname, "../../", "mobile", "index.html"), "utf-8");
+    private static readonly css     : string = fs.readFileSync(path.join(__dirname, "../../", "mobile", "index.css"), "utf-8");
+    private static readonly cssmap  : string = fs.readFileSync(path.join(__dirname, "../../", "mobile", "index.css.map"), "utf-8");
+    private static readonly js      : string = fs.readFileSync(path.join(__dirname, "../../", "mobile", "index.js"), "utf-8");
+
+    private readonly appname: string;
+    private readonly window: BrowserWindow;
+
+    constructor(appname: string, window: BrowserWindow){
         super();
+        this.appname = appname;
+        this.window = window;
+
+        ipcMain.on("code", (event: Electron.IpcMainEvent, ...args: any[]) => {
+            if(this.lockedIP) return; // already paired
+            const code: string = (args[0] as string).toUpperCase();
+
+            for(let [k, v] of this.codes.entries())
+                if(code == v){
+                    this.lockedIP = k;
+                    this.handle("authenticated", code);
+                    ipcMain.removeAllListeners("code");
+                    return;
+                }
+        });
     }
 
     public readonly handler: RequestListener = (req: IncomingMessage, res: ServerResponse) => {
@@ -43,33 +83,47 @@ class RequestHandler extends EventListener {
 
         const authorized: boolean = this.authenticated(ip);
 
-        const path: string = req.url || "";
+        const p: string = req.url || "";
 
-        if(path == '/'){
+        if(p == '/'){
+            this.window.webContents.send("show");
             if(!this.codes.has(ip)){
                 let code: string;
                 do{}
                 while((code = Authenticator.generateCode(4)) in this.codes.values);
                 this.codes.set(ip, code);
             }
-        }else if(path == "/event"){
-            res.writeHead(200, {
-                "Content-Type": "text/event-stream",
-                "Cache-Control": "no-cache",
-                "Connection": "keep-alive"
-            });
+            const code: string = this.codes.get(ip)!;
+            res.writeHead(200, typeHTML);
+            res.end(RequestHandler.html
+                .replace("{{ title }}", `${this.appname} Pairing`)
+                .replace("{{ code }}", code)
+                .replace("{{ login }}", authorized ? "true" : "false")
+            );
+        }else if(p == "/favicon.ico"){
+            res.writeHead(200, typeIcon);
+            fs.createReadStream(RequestHandler.icon).pipe(res);
+        }else if(p == "/index.css"){
+            res.writeHead(200, typeCSS);
+            res.end(RequestHandler.css);
+        }else if(p == "/index.css.map"){
+            res.writeHead(200, typeMAP);
+            res.end(RequestHandler.cssmap);
+        }else if(p == "/index.js"){
+            res.writeHead(200, typeJS);
+            res.end(RequestHandler.js);
+        }else if(p == "/event"){
+            res.writeHead(200, typeEvent);
             return setInterval(() => {
-                res.write(
-                    `retry: ${10}
-                    id: ${Date.now()}
-                    data: ${this.authenticated(ip)}\n\n`
-                );
+                res.write(`retry: ${10}\nid: ${Date.now()}\ndata: ${this.authenticated(ip)}\n\n`);
             }, 10);
-        }else if(path.startsWith("/input?") && authorized){
-            const query: Map<string, string | null> = RequestHandler.parseQuery(path.substr(path.indexOf('?') + 1));
+        }else if(p.startsWith("/input?") && authorized){
+            const query: Map<string, string | null> = RequestHandler.parseQuery(p.substr(p.indexOf('?') + 1));
             this.handle("input", query.get("q") || "");
-        }else if(path.startsWith("/submit") && authorized){
+        }else if(p.startsWith("/submit") && authorized){
             this.handle("submit");
+        }else{
+            res.end();
         }
     };
 

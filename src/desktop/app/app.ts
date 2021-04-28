@@ -16,29 +16,20 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-export { EventListener, Handler };
+import { clipboard, mouse, Point } from "@nut-tree/nut-js";
 
-type Handler = (...argv: any[]) => void;
+export { Application };
 
-abstract class EventListener {
+class Application {
 
-    private readonly listeners: Map<string, Handler[]> = new Map();
-
-    public on(event: string, listener: Handler): EventListener {
-        if(!this.listeners.has(event))
-            this.listeners.set(event, []);
-        this.listeners.get(event)!.push(listener);
-        return this;
+    constructor(){
+        setTimeout((...args: any[]) => this.handleMouse(), 250);
     }
 
-    protected handle(event: string, ...argv: any[]): void {
-        for(let [k, v] of this.listeners){
-            if(k == event){
-                for(let h of v)
-                    h(argv);
-                return;
-            }
-        }
+    private handleMouse(): void {
+        mouse.getPosition().then((point: Point) => {
+            // todo;
+        });
     }
 
 }
