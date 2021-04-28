@@ -19,10 +19,13 @@
 import { App, BrowserWindow } from "electron";
 import qrcode from "qrcode";
 
-import os from "os";
-import http from "http";
 import { RequestHandler } from "./requestHandler";
 import { EventListener } from "../eventListener";
+import { Main } from "../main";
+
+import http from "http";
+import os from "os";
+import path from "path";
 
 export { Authenticator }
 
@@ -40,19 +43,18 @@ const height: number = 450;
 
 class Authenticator extends EventListener {
 
-    private readonly port: number;
+    private requestHandler?: RequestHandler;
 
-    constructor(port: number){
+    constructor(){
         super();
-        this.port = port;
     }
 
     public async start(appname: string, icon: string, app: App, port: number): Promise<void> {
         if(dev)
-            console.warn("Developer mode is enabled");
+            console.warn("[!] Developer mode is enabled");
 
         const qr: string = await qrcode.toDataURL(
-            `http://${await Authenticator.getIP()}:${this.port}`,
+            `http://${await Authenticator.getIP()}:${port}`,
             {
                 margin: 0,
                 width: 150
@@ -60,31 +62,49 @@ class Authenticator extends EventListener {
         );
 
         // initialize window
-
         const window: BrowserWindow = new BrowserWindow({
             title: `${appname} Pairing`,
             icon,
             show: false,
+
             width,
             height,
             minWidth: width,
             minHeight: height,
+
             resizable: false,
             maximizable: false,
             useContentSize: true, // fix minimum size
             center: true, // fix black resize border
+
             webPreferences: {
                 nodeIntegration: true,
                 contextIsolation: true,
-                enableRemoteModule: true,
-                devTools: dev
+                enableRemoteModule: false,
+                devTools: dev,
+                preload: path.join(__dirname, "../", "interface.js")
             }
         });
         if(!dev)
             window.removeMenu(); // disable dev tools
+        window.loadFile(path.join(__dirname, "index.html"));
+        window.once("ready-to-show",
+            (event: Electron.Event, isAlwaysOnTop: boolean) => {
+                window.show();
+                window.webContents.send("init", {qr, url: `${Authenticator.getIP()}:${port}`});
+            }
+        );
+        Main.setActiveWindow(window);
 
         // server
-        const server: http.Server = http.createServer(new RequestHandler().handler);
+        this.requestHandler = new RequestHandler(appname, window);
+        const server: http.Server = http.createServer(this.requestHandler.handler);
+
+        // redirect emit handler events to authenticator
+        this.requestHandler!.on("authenticated", (...argv: any[]) => this.handle("authenticated", argv));
+        this.requestHandler!.on("input", (...argv: any[]) => this.handle("input", argv));
+        this.requestHandler!.on("submit", (...argv: any[]) => this.handle("submit", argv));
+
         server.listen(port);
     }
 

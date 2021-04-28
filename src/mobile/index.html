@@ -1,9 +1,29 @@
 <!DOCTYPE html>
 <html>
     <head>
-        
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <title>{{ title }}</title>
+        <link rel="stylesheet" href="index.css">
     </head>
     <body>
-        
+        <noscript>This application needs javascript to run.</noscript>
+        <div id="code" class="hidden">
+            <h1>Pairing Code:</h1>
+            <span>{{ code }}</span>
+        </div>
+        <div id="input" class="hidden">
+            <input spellcheck="false" id="text-input">
+        </div>
+
+        <script src="index.js"></script>
+        <script>
+            if({{ login }}){
+                showInput();
+                document.title = document.title.replace("Pairing", "");
+            }else
+                document.getElementById("code").classList.remove("hidden");
+        </script>
     </body>
 </html>

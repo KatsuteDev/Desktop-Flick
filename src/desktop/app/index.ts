@@ -16,29 +16,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-export { EventListener, Handler };
-
-type Handler = (...argv: any[]) => void;
-
-abstract class EventListener {
-
-    private readonly listeners: Map<string, Handler[]> = new Map();
-
-    public on(event: string, listener: Handler): EventListener {
-        if(!this.listeners.has(event))
-            this.listeners.set(event, []);
-        this.listeners.get(event)!.push(listener);
-        return this;
-    }
-
-    protected handle(event: string, ...argv: any[]): void {
-        for(let [k, v] of this.listeners){
-            if(k == event){
-                for(let h of v)
-                    h(argv);
-                return;
-            }
-        }
-    }
-
-}
+(window as any).api.receive("input", (data: any) => {
+    // todo: change input
+});
