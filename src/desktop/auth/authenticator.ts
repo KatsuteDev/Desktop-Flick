@@ -21,7 +21,7 @@ import qrcode from "qrcode";
 
 import { RequestHandler } from "./requestHandler";
 import { EventListener } from "../eventListener";
-import { Main } from "../main";
+import { Main, dev } from "../main";
 
 import http from "http";
 import os from "os";
@@ -36,14 +36,15 @@ type inet = {
 
 }
 
-const dev: boolean = true;
+const width: number  = 275;
+const height: number = 400;
 
-const width: number  = 300;
-const height: number = 450;
+http.globalAgent.maxSockets = 100;
 
 class Authenticator extends EventListener {
 
     private requestHandler?: RequestHandler;
+    private server?: http.Server;
 
     constructor(){
         super();
@@ -76,6 +77,7 @@ class Authenticator extends EventListener {
             maximizable: false,
             useContentSize: true, // fix minimum size
             center: true, // fix black resize border
+            fullscreenable: false,
 
             webPreferences: {
                 nodeIntegration: true,
@@ -98,14 +100,15 @@ class Authenticator extends EventListener {
 
         // server
         this.requestHandler = new RequestHandler(appname, window);
-        const server: http.Server = http.createServer(this.requestHandler.handler);
+        this.server = http.createServer(this.requestHandler.handler);
 
         // redirect emit handler events to authenticator
-        this.requestHandler!.on("authenticated", (...argv: any[]) => this.handle("authenticated", argv));
+        this.requestHandler!.on("authenticated", (...argv: any[]) =>
+            setTimeout(() => this.handle("authenticated", argv), 500));
         this.requestHandler!.on("input", (...argv: any[]) => this.handle("input", argv));
         this.requestHandler!.on("submit", (...argv: any[]) => this.handle("submit", argv));
 
-        server.listen(port);
+        this.server.listen(port);
     }
 
     //
@@ -114,7 +117,7 @@ class Authenticator extends EventListener {
         const inet: NodeJS.Dict<os.NetworkInterfaceInfo[]> = os.networkInterfaces();
         return Object
             .keys(inet)
-            .map(x => inet[x]!.filter((x: inet) => x.family === "IPv4" && !x.internal)[0])
+            .map(x => inet[x]!.filter((x: inet) => x.family == "IPv4" && !x.internal)[0])
             .filter(x => x)[0].address;
     }
 

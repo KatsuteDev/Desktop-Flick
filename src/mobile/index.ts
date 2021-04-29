@@ -26,7 +26,8 @@ input.focus();
 input.oninput = () => {
     const value: string = input.value || "";
     const request: XMLHttpRequest = new XMLHttpRequest();
-    request.open("GET", "input?m=update&q=" + encodeURIComponent(value), true);
+
+    request.open("GET", "input?q=" + encodeURIComponent(value), true);
     request.send(null);
 }
 
@@ -34,7 +35,7 @@ input.oninput = () => {
 input.onkeydown = (e:KeyboardEvent) => {
     if(e.key == "Enter"){
         const request: XMLHttpRequest = new XMLHttpRequest();
-        request.open("GET", "input?m=submit", true);
+        request.open("GET", "submit", true);
         request.send(null);
         input.value = "";
     }
@@ -42,8 +43,10 @@ input.onkeydown = (e:KeyboardEvent) => {
 // event stream
 const stream: EventSource = new EventSource("event");
 stream.onmessage = function(event: MessageEvent): void {
-    if(event.data === "true")
+    if(event.data == "true"){
         showInput();
+        stream.close();
+    }
 }
 
 function showInput(): void {

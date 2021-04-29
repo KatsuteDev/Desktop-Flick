@@ -1,11 +1,11 @@
 <div align="center">
-    <img src="https://raw.githubusercontent.com/Katsute/DesktopFlick/main/logo.png" alt="Logo" width="175" height="175">
+    <img src="https://raw.githubusercontent.com/Katsute/Desktop-Flick/main/logo.png" alt="Logo" width="175" height="175">
     <h1>Desktop Flick</h1>
     <p>Finally, a Japanese flick keyboard for desktop.</p>
-    <a href="https://github.com/Katsute/DesktopFlick/actions/workflows/npm_ci.yml"><img src="https://github.com/Katsute/DesktopFlick/workflows/npm%20CI/badge.svg" title="npm CI"></a>
-    <a href="https://github.com/Katsute/DesktopFlick/actions/workflows/deploy.yml"><img src="https://github.com/Katsute/DesktopFlick/workflows/Deploy/badge.svg" title="Deploy"></a>
-    <a href="https://github.com/Katsute/DesktopFlick/releases"><img title="version" src="https://img.shields.io/github/v/release/Katsute/DesktopFlick"></a>
-    <a href="https://github.com/Katsute/DesktopFlick/blob/main/LICENSE"><img title="license" src="https://img.shields.io/github/license/Katsute/DesktopFlick"></a>
+    <a href="https://github.com/Katsute/Desktop-Flick/actions/workflows/npm_ci.yml"><img src="https://github.com/Katsute/Desktop-Flick/workflows/npm%20CI/badge.svg" title="npm CI"></a>
+    <a href="https://github.com/Katsute/Desktop-Flick/actions/workflows/deploy.yml"><img src="https://github.com/Katsute/Desktop-Flick/workflows/Deploy/badge.svg" title="Deploy"></a>
+    <a href="https://github.com/Katsute/Desktop-Flick/releases"><img title="version" src="https://img.shields.io/github/v/release/Katsute/Desktop-Flick"></a>
+    <a href="https://github.com/Katsute/Desktop-Flick/blob/main/LICENSE"><img title="license" src="https://img.shields.io/github/license/Katsute/Desktop-Flick"></a>
     <br />
 </div>
 

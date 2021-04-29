@@ -1,5 +1,5 @@
 {
-    "name": "desktopflick",
+    "name": "desktop-flick",
     "version": "1.0.0",
     "description": "Finally, a Japanese flick keyboard for deskop.",
     "private": true,
@@ -10,6 +10,7 @@
         "prune": "npm prune && npm i --package-lock --ignore-scripts",
         "update": "npm update",
         "// -- build -- //": "",
+        "rebuild": "electron-rebuild",
         "build:cp": "copyfiles -u 1 src/**/*.html dist && copyfiles icon.ico dist",
         "build:sass": "sass src:dist/",
         "build:typescript": "tsc --outDir dist",
@@ -36,7 +37,7 @@
     },
     "homepage": "https://github.com/Katsute/DesktopFlick#readme",
     "dependencies": {
-        "@nut-tree/nut-js": "^1.6.0",
+        "@nut-tree/nut-js": "^1.6.1-next.20210408195718",
         "electron-squirrel-startup": "^1.0.0",
         "qrcode": "^1.4.4"
     },
