@@ -7,7 +7,11 @@ on:
 jobs:
   make:
     name: Make
-    runs-on: windows-latest
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
     environment: Compile
     steps:
       - name: 📦 Prepate Git Repo
@@ -24,37 +28,16 @@ jobs:
           npm run prepare
           npm run make
 
-      - name: 📦 Upload artifact
-        uses: actions/upload-artifact@v2
+      - name: 📦 Zip Release
+        if: matrix.os == 'windows-latest'
+        uses: TheDoctor0/zip-release@0.4.1
         with:
-          name: artifact
-          path: out/
+          directory: out/
+          filename: desktop-flick-win32-x64.zip
+          path: desktop-flick-win32-x64
 
       - name: 🚀 Deploy Installer to Releases
         uses: AButler/upload-release-assets@v2.0
         with:
-          files: 'out/make/squirrel.windows/x64/*.exe'
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-
-  deploy:
-    name: Deploy
-    needs: make
-    runs-on: ubuntu-latest
-    steps:
-      - name: 📦 Download Artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: artifact
-          path: out/desktopflick-win32-x64
-
-      - name: 📦 Zip file
-        uses: papeloto/action-zip@v1
-        with:
-          files: out/desktopflick-win32-x64
-          dest: desktopflick-windows.zip
-
-      - name: 🚀 Deploy Binaries to Releases
-        uses: AButler/upload-release-assets@v2.0
-        with:
-          files: 'desktopflick-windows.zip'
+          files: 'out/make/**.exe; out/make/**.zip; out/**.zip'
           repo-token: ${{ secrets.GITHUB_TOKEN }}

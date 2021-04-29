@@ -59,12 +59,14 @@
     },
     "config": {
         "forge": {
-            "packagerConfig": {},
+            "packagerConfig": {
+                "icon": "icon"
+            },
             "makers": [
                 {
                     "name": "@electron-forge/maker-squirrel",
                     "config": {
-                        "name": "desktopflick"
+                        "name": "Desktop Flick"
                     }
                 },
                 {
