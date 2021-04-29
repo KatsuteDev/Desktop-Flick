@@ -75,8 +75,8 @@ class RequestHandler extends EventListener {
         const ip: string = req.socket.remoteAddress || "";
 
         // deny new conn if one already exists
-        if(this.lockedIP && ip !== this.lockedIP){
-            res.writeHead(401, { "Content-Type": 'text/html' });
+        if(this.lockedIP && ip != this.lockedIP){
+            res.writeHead(401, typeHTML);
             res.end("connection denied by server");
             return;
         }
@@ -84,7 +84,6 @@ class RequestHandler extends EventListener {
         const authorized: boolean = this.authenticated(ip);
 
         const p: string = req.url || "";
-
         if(p == '/'){
             this.window.webContents.send("show");
             if(!this.codes.has(ip)){
@@ -116,15 +115,14 @@ class RequestHandler extends EventListener {
             res.writeHead(200, typeEvent);
             return setInterval(() => {
                 res.write(`retry: ${10}\nid: ${Date.now()}\ndata: ${this.authenticated(ip)}\n\n`);
-            }, 10);
+            }, 100);
         }else if(p.startsWith("/input?") && authorized){
             const query: Map<string, string | null> = RequestHandler.parseQuery(p.substr(p.indexOf('?') + 1));
-            this.handle("input", query.get("q") || "");
+            this.handle("input", query.get('q') || "");
         }else if(p.startsWith("/submit") && authorized){
             this.handle("submit");
-        }else{
-            res.end();
         }
+        res.end();
     };
 
     private authenticated(ip: string): boolean {

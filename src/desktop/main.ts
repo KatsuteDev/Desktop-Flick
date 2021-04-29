@@ -18,24 +18,31 @@
 
 import { app, BrowserWindow, Menu, Notification, Tray } from "electron";
 import path from "path";
+import { Application } from "./app/app";
 import { Authenticator } from "./auth/authenticator";
 
-export { Main };
+export { Main, dev };
+
+const dev: boolean = false;
+
+if(dev) console.warn("[WARN] Application in dev mode, do not distribute.");
 
 const name: string = "Desktop Flick";
 const port: number = 7272; // todo: configure this
 const icon: string = path.join(__dirname, "../icon.ico");
 
-const darwin: boolean = process.platform === "darwin";
+const darwin: boolean = process.platform == "darwin";
 
 abstract class Main {
 
     private static window: BrowserWindow;
     private static tray: Tray;
 
+    private static application: Application;
     private static auth: Authenticator;
 
     public static async main(): Promise<void> {
+
         if(!app.requestSingleInstanceLock())
             return app.quit();
 
@@ -70,20 +77,25 @@ abstract class Main {
                     Main.tray.setToolTip(name);
                     Main.tray.setContextMenu(menu);
 
-                    Main.auth = new Authenticator();
-
-                    // todo: register event handlers
-                    // make sure to create new window before destroying to prevent
-                    // `window-all-closed` closure
+                    Main.auth = new Authenticator()
 
                     Main.auth.on("authenticated", (...argv: any[]) => {
+                        const temp: BrowserWindow = Main.window;
                         Main.window.hide();
 
-                        new Notification({
-                            title: name,
-                            body: "Desktop Flick is now running. Right click the tray icon to quit.",
-                            icon: icon
-                        }).show();
+                        this.application = new Application(Main.auth);
+                        this.application.start();
+                        temp.destroy();
+
+                        Main.window.once("ready-to-show",
+                            (event: Electron.Event, isAlwaysOnTop: boolean) => {
+                                new Notification({
+                                    title: name,
+                                    body: "Desktop Flick is now running. Right click the tray icon to quit.",
+                                    icon: icon
+                                }).show();
+                            }
+                        );
                     });
 
                     Main.auth.start(name, icon, app, port);
@@ -101,6 +113,14 @@ abstract class Main {
 
 }
 
-process.on("unhandledRejection", (reason, promise) => console.error(`Unhandled rejection at:\n  ${reason}\n  ${promise}`));
+process.on("unhandledRejection", (error: Error, promise) => {
+    console.error(`Unhandled rejection at:\n  Promise ${promise}\n  ${error.stack}`);
+    if(app)
+        app.quit();
+});
 
-Main.main().catch(error => console.error(error.stack));
+Main.main().catch((error: Error) => {
+    console.error(error.stack);
+    if(app)
+        app.quit();
+});
