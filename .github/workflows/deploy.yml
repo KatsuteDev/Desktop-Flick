@@ -7,11 +7,7 @@ on:
 jobs:
   make:
     name: Make
-    strategy:
-      matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
-      fail-fast: false
-    runs-on: ${{ matrix.os }}
+    runs-on: windows-latest
     environment: Compile
     steps:
       - name: 📦 Prepate Git Repo
@@ -29,7 +25,6 @@ jobs:
           npm run make
 
       - name: 📦 Zip Release
-        if: matrix.os == 'windows-latest'
         uses: TheDoctor0/zip-release@0.4.1
         with:
           directory: out/
