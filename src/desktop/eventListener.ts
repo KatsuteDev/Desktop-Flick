@@ -32,9 +32,9 @@ abstract class EventListener {
     }
 
     protected handle(event: string, ...argv: any[]): void {
-        for(let [k, v] of this.listeners){
+        for(const [k, v] of this.listeners){
             if(k == event){
-                for(let h of v)
+                for(const h of v)
                     h(argv);
                 return;
             }

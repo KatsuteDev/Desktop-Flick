@@ -61,7 +61,7 @@ class RequestHandler extends EventListener {
             if(this.lockedIP) return; // already paired
             const code: string = (args[0] as string).toUpperCase();
 
-            for(let [k, v] of this.codes.entries())
+            for(const [k, v] of this.codes.entries())
                 if(code == v){
                     this.lockedIP = k;
                     this.handle("authenticated", code);
