@@ -17,9 +17,12 @@
  */
 
 import { app, BrowserWindow, Menu, Notification, Tray } from "electron";
-import path from "path";
+
 import { Application } from "./app/app";
 import { Authenticator } from "./auth/authenticator";
+
+import path from "path";
+import fs from "fs";
 
 export { Main, dev };
 
@@ -27,11 +30,28 @@ const dev: boolean = false;
 
 if(dev) console.warn("[WARN] Application in dev mode, do not distribute.");
 
-const name: string = "Desktop Flick";
-const port: number = 7272; // todo: configure this
-const icon: string = path.join(__dirname, "../icon.ico");
-
 const darwin: boolean = process.platform == "darwin";
+
+const name: string = "Desktop Flick";
+const icon: string = path.join(__dirname, "../icon.ico");
+const defPort: number = 7272;
+
+// config
+const defJson: string = `{\n\t\"port\": ${defPort}\n}`;
+const cpath: string = path.join(__dirname, "../", "../", "config.json");
+if(!fs.existsSync(cpath))
+    fs.writeFileSync(cpath, defJson);
+
+const rawJson: string = fs.readFileSync(cpath, "utf-8");
+let json;
+try{
+    json = JSON.parse(rawJson);
+}catch(e){
+    json = JSON.parse(defJson);
+}
+
+const port: number = typeof json["port"] == "number" ? json["port"] : defPort;
+
 
 abstract class Main {
 

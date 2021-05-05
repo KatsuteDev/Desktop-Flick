@@ -6,7 +6,7 @@
     "main": "dist/desktop/main.js",
     "scripts": {
         "// -- dev -- //": "",
-        "clean": "rimraf dist & rimraf out",
+        "clean": "rimraf dist & rimraf out & rimraf config.json",
         "prune": "npm prune && npm i --package-lock --ignore-scripts",
         "update": "npm update",
         "// -- build -- //": "",
@@ -23,8 +23,8 @@
         "// -- test -- //": "",
         "test": "echo \"Error: no test specified\" && exit 1",
         "// -- deploy -- //": "",
-        "package": "electron-forge package",
-        "make": "electron-forge make"
+        "package": "npm run prepare && electron-forge package",
+        "make": "npm run prepare && electron-forge make"
     },
     "repository": {
         "type": "git",
@@ -61,7 +61,13 @@
         "forge": {
             "packagerConfig": {
                 "icon": "icon.ico",
-                "name": "Desktop-Flick"
+                "name": "Desktop-Flick",
+                "ignore": [
+                    "^/\\.github",
+                    "^/src",
+                    "^/tsconfig.json",
+                    "^\\.gitignore"
+                ]
             },
             "makers": [
                 {
