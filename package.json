@@ -60,8 +60,9 @@
     "config": {
         "forge": {
             "packagerConfig": {
-                "icon": "icon.ico",
                 "name": "Desktop-Flick",
+                "icon": "icon.ico",
+                "appCopyright": "© Katsute 2021",
                 "ignore": [
                     "^/\\.github",
                     "^/src",
@@ -78,18 +79,21 @@
                     }
                 },
                 {
-                    "name": "@electron-forge/maker-zip",
+                    "name": "@electron-forge/maker-zip"
+                },
+                {
+                    "name": "@electron-forge/maker-deb",
+                    "config": {},
                     "platforms": [
                         "darwin"
                     ]
                 },
                 {
-                    "name": "@electron-forge/maker-deb",
-                    "config": {}
-                },
-                {
                     "name": "@electron-forge/maker-rpm",
-                    "config": {}
+                    "config": {},
+                    "platforms": [
+                        "darwin"
+                    ]
                 }
             ]
         }
