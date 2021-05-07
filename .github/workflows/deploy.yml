@@ -21,18 +21,12 @@ jobs:
 
       - name: 📦 Package Executable
         run: |
+          npm i
           npm run prepare
           npm run make
-
-      - name: 📦 Zip Release
-        uses: TheDoctor0/zip-release@0.4.1
-        with:
-          directory: out/
-          filename: desktop-flick-win32-x64.zip
-          path: desktop-flick-win32-x64
 
       - name: 🚀 Deploy Installer to Releases
         uses: AButler/upload-release-assets@v2.0
         with:
-          files: 'out/make/**.exe; out/make/**.zip; out/**.zip'
+          files: 'out/make/**.exe; out/make/**.zip;'
           repo-token: ${{ secrets.GITHUB_TOKEN }}

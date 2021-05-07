@@ -38,7 +38,11 @@ const defPort: number = 7272;
 
 // config
 const defJson: string = `{\n\t\"port\": ${defPort}\n}`;
-const cpath: string = path.join(__dirname, "../", "../", "config.json");
+const cpath: string =
+    fs.existsSync(path.join(__dirname, "../", "src"))
+    ? path.join(__dirname, "../", "../", "config.json") // dev dir
+    : path.join(__dirname, "../", "../", "../", "../", "config.json"); // package
+
 if(!fs.existsSync(cpath))
     fs.writeFileSync(cpath, defJson);
 
@@ -51,7 +55,6 @@ try{
 }
 
 const port: number = typeof json["port"] == "number" ? json["port"] : defPort;
-
 
 abstract class Main {
 
