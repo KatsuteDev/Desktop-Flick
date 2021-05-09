@@ -28,5 +28,5 @@ jobs:
       - name: 🚀 Deploy Installer to Releases
         uses: AButler/upload-release-assets@v2.0
         with:
-          files: 'out/make/**.exe;out/make/**.zip'
+          files: 'out/make/**/*.exe;out/make/**/*.zip'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
