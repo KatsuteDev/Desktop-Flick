@@ -17,7 +17,7 @@ Desktop Flick uses your mobile device's keyboard and mirrors the output onto the
 
 ## Setup
 
-This application doesn't add a new keyboard, you need to add them to your mobile device first. [[IOS]](https://support.apple.com/guide/iphone/add-or-change-keyboards-iph73b71eb/ios) [[Android]](https://www.samsung.com/au/support/mobile-devices/customise-keyboard-layout/)
+This application doesn't add a new keyboard, you need to add them to your mobile device first. [`[IOS]`](https://support.apple.com/guide/iphone/add-or-change-keyboards-iph73b71eb/ios) [`[Android]`](https://www.samsung.com/au/support/mobile-devices/customise-keyboard-layout/)
 
 1. Download the latest [release](https://github.com/Katsute/Desktop-Flick/releases)
 2. Either run the installer or extract the zip into the desired directory
