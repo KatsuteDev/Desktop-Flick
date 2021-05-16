@@ -1,4 +1,4 @@
-name: npm CI
+name: CodeQL
 on:
   push:
     paths:
@@ -13,11 +13,16 @@ permissions: read-all
 
 jobs:
   npm_ci:
-    name: npm CI
-    runs-on: windows-latest
+    name: CodeQL
+    runs-on: ubuntu-latest
     steps:
       - name: 📦 Prepate Git Repo
         uses: actions/checkout@v2.3.4
+
+      - name: 📦 Initialize CodeQL
+        uses: github/codeql-action/init@v1
+        with:
+          languages: javascript
 
       - name: 📦 Install npm
         uses: actions/setup-node@v2.1.5
@@ -25,7 +30,10 @@ jobs:
           node-version: 14
           architecture: x64
 
-      - name: ✔ Test with npm
+      - name: 📦 Compile with npm
         run: |
           npm ci
           npm run prepare
+
+      - name: ✔ Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v1
