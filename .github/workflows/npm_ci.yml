@@ -1,14 +1,8 @@
 name: npm CI
 on:
-  push:
-    paths:
-      - '**.js'
-      - '**.ts'
+  push: {}
   pull_request:
     branches: [main]
-    paths:
-      - '**.js'
-      - '**.ts'
 permissions: read-all
 
 jobs:
