@@ -17,9 +17,10 @@
  */
 
 const display: HTMLElement = document.getElementById("display")!;
+const content: HTMLElement = document.getElementById("content")!;
 
 (window as any).api.receive("input", (data: any) => {
-    display.innerHTML = data as string;
+    content.innerHTML = data as string;
 
     (window as any).api.send(
         "size", {
