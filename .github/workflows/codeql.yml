@@ -3,12 +3,11 @@ on:
   push: {}
   pull_request:
     branches: [main]
-permissions: read-all
-
 jobs:
   codeql:
     name: CodeQL
     runs-on: ubuntu-latest
+    if: github.event == 'pull_request' || github.actor != 'dependabot[bot]'
     steps:
       - name: 📦 Prepate Git Repo
         uses: actions/checkout@v2.3.4
