@@ -121,8 +121,8 @@ class Authenticator extends EventListener {
             .filter(x => x)[0].address;
     }
 
-    // disallow vowels to prevent words
-    private static readonly codeChars: string = "BCDFGHJKLMNPQRSTVWXZ0123456789";
+    // disallow vowels and select numbers to prevent words
+    private static readonly codeChars: string = "BCDFGHJKLMNPQRSTVWXZ23456789";
 
     public static generateCode(length: number): string {
         let result: string = "";

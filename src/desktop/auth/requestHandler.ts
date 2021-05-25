@@ -95,7 +95,7 @@ class RequestHandler extends EventListener {
             const code: string = this.codes.get(ip)!;
             res.writeHead(200, typeHTML);
             res.end(RequestHandler.html
-                .replace("{{ title }}", `${this.appname} Pairing`)
+                .replace("{{ title }}", this.appname)
                 .replace("{{ code }}", code)
                 .replace("{{ login }}", authorized ? "true" : "false")
             );
