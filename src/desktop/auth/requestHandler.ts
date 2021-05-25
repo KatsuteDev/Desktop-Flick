@@ -26,7 +26,6 @@ import { BrowserWindow, ipcMain } from "electron";
 
 export { RequestHandler }
 
-const typeIcon  : OutgoingHttpHeaders = { "Content-Type": "image/x-icon" };
 const typeHTML  : OutgoingHttpHeaders = { "Content-Type": "text/html" };
 const typeCSS   : OutgoingHttpHeaders = { "Content-Type": "text/css" };
 const typeMAP   : OutgoingHttpHeaders = { "Content-Type": "application/json" };
@@ -101,8 +100,9 @@ class RequestHandler extends EventListener {
                 .replace("{{ login }}", authorized ? "true" : "false")
             );
         }else if(p == "/favicon.ico"){
-            res.writeHead(200, typeIcon);
+            res.setHeader("Content-Type", "image/x-icon");
             fs.createReadStream(RequestHandler.icon).pipe(res);
+            return;
         }else if(p == "/index.css"){
             res.writeHead(200, typeCSS);
             res.end(RequestHandler.css);
