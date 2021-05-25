@@ -18,29 +18,39 @@
 
 const input: HTMLInputElement = document.getElementById("text-input") as HTMLInputElement;
 
-// lock input
-input.onblur = () => input.focus();
-input.focus();
+// handle IME events
+let before: string = ""; // content before IME (used for stiching)
+let isTypingIME: boolean = false;
+input.addEventListener("compositionstart", () => {
+    isTypingIME = true;
+    before = input.value || "";
+});
+input.addEventListener("compositionend", () => isTypingIME = false);
 
-// display input
-input.oninput = () => {
-    const value: string = input.value || "";
+// handle visual input
+const handleInput = (value: string) => {
     const request: XMLHttpRequest = new XMLHttpRequest();
 
     request.open("GET", "input?q=" + encodeURIComponent(value), true);
     request.send(null);
 }
 
+input.oninput = () => {
+    if(!isTypingIME)
+        handleInput(input.value || "");
+};
+input.addEventListener("compositionupdate", (event: CompositionEvent) => handleInput(before + event.data));
+
 // push input
 input.onkeydown = (e:KeyboardEvent) => {
-    if(e.key == "Enter"){
+    if(!isTypingIME && e.key == "Enter"){
         const request: XMLHttpRequest = new XMLHttpRequest();
         request.open("GET", "submit", true);
         request.send(null);
         input.value = "";
     }
 }
-// event stream
+// handle code
 const stream: EventSource = new EventSource("event");
 stream.onmessage = function(event: MessageEvent): void {
     if(event.data == "true"){
@@ -54,3 +64,7 @@ function showInput(): void {
     document.getElementById("input")!.classList.remove("hidden");
     input.focus();
 }
+
+// lock input
+input.onblur = () => input.focus();
+input.focus();

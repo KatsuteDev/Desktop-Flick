@@ -18,15 +18,14 @@
             <span>{{ code }}</span>
         </div>
         <div id="input" class="hidden">
-            <input spellcheck="false" id="text-input">
+            <input spellcheck="false" type="text" id="text-input">
         </div>
 
         <script src="index.js"></script>
         <script>
-            if({{ login }}){
+            if({{ login }})
                 showInput();
-                document.title = document.title.replace("Pairing", "");
-            }else
+            else
                 document.getElementById("code").classList.remove("hidden");
         </script>
     </body>
