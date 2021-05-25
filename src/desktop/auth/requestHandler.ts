@@ -85,7 +85,8 @@ class RequestHandler extends EventListener {
 
         const p: string = req.url || "";
         if(p == '/'){
-            this.window.webContents.send("show");
+            if(!this.window.isDestroyed())
+                this.window.webContents.send("show");
             if(!this.codes.has(ip)){
                 let code: string;
                 do{}
@@ -112,9 +113,13 @@ class RequestHandler extends EventListener {
             res.writeHead(200, typeJS);
             res.end(RequestHandler.js);
         }else if(p == "/event"){
+            let interval: NodeJS.Timeout;
             res.writeHead(200, typeEvent);
-            return setInterval(() => {
-                res.write(`retry: ${10}\nid: ${Date.now()}\ndata: ${this.authenticated(ip)}\n\n`);
+            return interval = setInterval(() => {
+                if(res)
+                    res.write(`retry: ${10}\nid: ${Date.now()}\ndata: ${this.authenticated(ip)}\n\n`);
+                else
+                    clearInterval(interval);
             }, 100);
         }else if(p.startsWith("/input?") && authorized){
             const query: Map<string, string | null> = RequestHandler.parseQuery(p.substr(p.indexOf('?') + 1));
