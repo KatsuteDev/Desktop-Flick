@@ -10,17 +10,20 @@ jobs:
     name: npm CI
     runs-on: windows-latest
     steps:
-      - name: 📦 Prepate Git Repo
+      - name: 📤 Checkout Repository
         uses: actions/checkout@v2.3.4
 
-      - name: 📦 Install npm
+      - name: 📚 Install npm
         uses: actions/setup-node@v2.1.5
         with:
           node-version: 14
           architecture: x64
 
-      - name: ✔ Test with npm
+      - name: ✔ Compile with npm
         run: |
           npm ci
           npm run prepare
+
+      - name: 🔄 Rebuild with Electron
+        run: |
           npm run rebuild
