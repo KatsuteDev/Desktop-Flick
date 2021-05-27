@@ -30,7 +30,7 @@ This application doesn't add a new keyboard, you need to add them to your mobile
 2. Either run the installer or extract the zip into the desired directory
 3. Run `Desktop-Flick.exe`
 4. Login with mobile device
-5. Start typing!
+5. Start typing
 
 ## Configuration
 
