@@ -16,6 +16,12 @@
 
 Desktop Flick uses your mobile device's keyboard and mirrors the output onto the desktop.
 
+<div align="center">
+    <a href="https://github.com/Katsute/Desktop-Flick">
+        <img src="https://raw.githubusercontent.com/Katsute/Desktop-Flick/main/sample.gif" alt="sample" width="750">
+    </a>
+</div>
+
 ## Setup
 
 This application doesn't add a new keyboard, you need to add them to your mobile device first. [[IOS]](https://support.apple.com/guide/iphone/add-or-change-keyboards-iph73b71eb/ios) [[Android]](https://www.samsung.com/au/support/mobile-devices/customise-keyboard-layout/)
