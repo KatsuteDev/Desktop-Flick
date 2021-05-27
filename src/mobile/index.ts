@@ -27,20 +27,20 @@ input.addEventListener("compositionstart", () => {
 });
 input.addEventListener("compositionend", () => {
     isTypingIME = false;
-    handleInput(input.value || ""); // fix mobile devices not updating input
+    handleInput(); // fix mobile devices not updating input
 });
 
 // handle visual input
-const handleInput = (value: string) => {
+const handleInput = (value?: string) => {
     const request: XMLHttpRequest = new XMLHttpRequest();
 
-    request.open("GET", "input?q=" + encodeURIComponent(value), true);
+    request.open("GET", "input?q=" + encodeURIComponent(value ? value : input.value || ""), true);
     request.send(null);
 }
 
 input.oninput = () => {
     if(!isTypingIME)
-        handleInput(input.value || "");
+        handleInput();
 };
 input.addEventListener("compositionupdate", (event: CompositionEvent) => handleInput(before + event.data));
 
@@ -53,6 +53,7 @@ input.onkeydown = (e:KeyboardEvent) => {
         input.value = "";
     }
 }
+
 // handle code
 const stream: EventSource = new EventSource("event");
 stream.onmessage = function(event: MessageEvent): void {
