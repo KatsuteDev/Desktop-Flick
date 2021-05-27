@@ -25,7 +25,10 @@ input.addEventListener("compositionstart", () => {
     isTypingIME = true;
     before = input.value || "";
 });
-input.addEventListener("compositionend", () => isTypingIME = false);
+input.addEventListener("compositionend", () => {
+    isTypingIME = false;
+    handleInput(input.value || ""); // fix mobile devices not updating input
+});
 
 // handle visual input
 const handleInput = (value: string) => {
