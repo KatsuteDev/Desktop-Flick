@@ -123,11 +123,12 @@ class Authenticator extends EventListener {
 
     // disallow vowels and select numbers to prevent words
     private static readonly codeChars: string = "BCDFGHJKLMNPQRSTVWXZ23456789";
+    private static readonly len: number = Authenticator.codeChars.length;
 
     public static generateCode(length: number): string {
         let result: string = "";
         for(let i = 0; i < length; i++)
-            result += this.codeChars.charAt(Math.floor(Math.random() * 30));
+            result += this.codeChars.charAt(Math.floor(Math.random() * Authenticator.len));
         return result;
     }
 
