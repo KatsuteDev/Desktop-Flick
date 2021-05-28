@@ -16,7 +16,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import { app, BrowserWindow, Menu, Notification, Tray } from "electron";
+import { app, BrowserWindow, Menu, nativeImage, Notification, Tray } from "electron";
 
 import { Application } from "./app/app";
 import { Authenticator } from "./auth/authenticator";
@@ -65,9 +65,10 @@ abstract class Main {
     private static auth: Authenticator;
 
     public static async main(): Promise<void> {
-
         if(!app.requestSingleInstanceLock())
             return app.quit();
+
+        const ip: string = `${await Authenticator.getIP()}:${port}`;
 
         app
             .on("second-instance",
@@ -91,6 +92,20 @@ abstract class Main {
                 (event: Electron.Event, launchInfo: Record<string,any> | Electron.NotificationResponse) => {
                     Main.tray = new Tray(icon);
                     const menu: Menu = Menu.buildFromTemplate([
+                        {
+                            label: "Desktop Flick",
+                            type: "normal",
+                            icon: nativeImage.createFromPath(icon).resize({width: 16, height: 16}),
+                            enabled: false
+                        },
+                        {
+                            label: ip,
+                            type: "normal",
+                            enabled: false
+                        },
+                        {
+                            type: "separator"
+                        },
                         {
                             label: "Quit",
                             type: "normal",
