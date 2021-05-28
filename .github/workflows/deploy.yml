@@ -8,7 +8,7 @@ jobs:
   make:
     name: Make
     runs-on: windows-latest
-    environment: Compile
+    environment: Electron Make
     steps:
       - name: 📤 Checkout Repository
         uses: actions/checkout@v2.3.4
