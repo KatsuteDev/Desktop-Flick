@@ -22,7 +22,6 @@ jobs:
       - name: ✔ Compile with npm
         run: |
           npm ci
-          npm run prepare
 
       - name: 🔄 Rebuild with Electron
         run: |
