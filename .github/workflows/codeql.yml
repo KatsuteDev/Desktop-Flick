@@ -27,7 +27,6 @@ jobs:
       - name: ✔ Compile with npm
         run: |
           npm ci
-          npm run prepare
 
       - name: ✔ Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v1
