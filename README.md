@@ -28,6 +28,7 @@ This application doesn't add a new keyboard, you need to add them to your mobile
 
 1. Download the latest [release](https://github.com/Katsute/Desktop-Flick/releases)
 2. Either run the installer or extract the zip into the desired directory
+   - installer installs into `AppData/Local/Desktop-Flick`
 3. Run `Desktop-Flick.exe`
 4. Login with mobile device (you must be on the same internet network)
 5. Start typing

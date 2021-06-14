@@ -19,10 +19,16 @@ jobs:
           node-version: 14
           architecture: x64
 
+      - name: ✔ Compile with npm
+        run: |
+          npm ci
+
+      - name: 🔄 Rebuild with Electron
+        run: |
+          npm run rebuild
+
       - name: 📦 Package Executable
         run: |
-          npm i
-          npm run prepare
           npm run make
 
       - name: 🚀 Deploy to Releases

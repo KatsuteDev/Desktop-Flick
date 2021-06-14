@@ -14,7 +14,7 @@
         "build:cp": "copyfiles -u 1 src/**/*.html dist && copyfiles icon.ico dist",
         "build:sass": "sass src:dist/",
         "build:typescript": "tsc --outDir dist",
-        "build": "run-p build:**",
+        "build": "npm run build:cp & npm run build:sass & npm run build:typescript",
         "prepare": "npm run clean && npm run build",
         "// -- run -- //": "",
         "start:dev": "npm run clean && npm run build && electron .",
@@ -28,14 +28,14 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/Katsute/DesktopFlick.git"
+        "url": "git+https://github.com/Katsute/Desktop-Flick.git"
     },
     "author": "Katsute",
     "license": "GPL-2.0",
     "bugs": {
-        "url": "https://github.com/Katsute/DesktopFlick/issues"
+        "url": "https://github.com/Katsute/Desktop-Flick/issues"
     },
-    "homepage": "https://github.com/Katsute/DesktopFlick#readme",
+    "homepage": "https://github.com/Katsute/Desktop-Flick#readme",
     "dependencies": {
         "@nut-tree/nut-js": "^1.6.1-next.20210603163242",
         "electron-squirrel-startup": "^1.0.0",
@@ -51,7 +51,6 @@
         "copyfiles": "^2.4.1",
         "electron": "^12.0.9",
         "electron-rebuild": "^2.3.5",
-        "npm-run-all": "^4.1.5",
         "rimraf": "^3.0.2",
         "sass": "^1.34.1",
         "tslint": "^6.1.3",
@@ -60,14 +59,15 @@
     "config": {
         "forge": {
             "packagerConfig": {
-                "name": "Desktop-Flick",
+                "name": "Desktop Flick",
                 "icon": "icon.ico",
                 "appCopyright": "© Katsute 2021",
                 "ignore": [
                     "^/\\.github",
                     "^/src",
                     "^/tsconfig.json",
-                    "^\\.gitignore"
+                    "^/\\.gitignore",
+                    "^/.*\\.(png|gif)"
                 ]
             },
             "makers": [
@@ -75,7 +75,8 @@
                     "name": "@electron-forge/maker-squirrel",
                     "config": {
                         "name": "Desktop-Flick",
-                        "setupIcon": "icon.ico"
+                        "setupIcon": "icon.ico",
+                        "loadingGif": "installer.gif"
                     }
                 },
                 {
