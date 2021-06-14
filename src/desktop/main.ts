@@ -65,7 +65,7 @@ abstract class Main {
     private static auth: Authenticator;
 
     public static async main(): Promise<void> {
-        if(!app.requestSingleInstanceLock())
+        if(require('electron-squirrel-startup') || !app.requestSingleInstanceLock())
             return app.quit();
 
         const ip: string = `${await Authenticator.getIP()}:${port}`;
@@ -86,6 +86,7 @@ abstract class Main {
                         if(Main.tray)
                             Main.tray.destroy();
                         app.quit();
+                        process.exit(0);
                     }
                 }
             ).once("ready",
