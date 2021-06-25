@@ -37,7 +37,7 @@
     },
     "homepage": "https://github.com/Katsute/Desktop-Flick#readme",
     "dependencies": {
-        "@nut-tree/nut-js": "^1.6.1-next.20210603163242",
+        "@nut-tree/nut-js": "^1.6.1-next.20210625094914",
         "electron-squirrel-startup": "^1.0.0",
         "qrcode": "^1.4.4"
     },
