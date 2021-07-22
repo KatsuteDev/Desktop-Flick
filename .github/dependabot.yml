@@ -1,7 +1,9 @@
 version: 2
 updates:
 - package-ecosystem: github-actions
-  directory: "/"
+  directory: /
+  labels: [dependencies]
+  reviewers: [Katsute]
   schedule:
     interval: daily
     time: '07:00'
@@ -9,7 +11,9 @@ updates:
   open-pull-requests-limit: 99
 
 - package-ecosystem: npm
-  directory: "/"
+  directory: /
+  labels: [dependencies]
+  reviewers: [Katsute]
   schedule:
     interval: daily
     time: '07:00'
