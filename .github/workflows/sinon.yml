@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     if: |
-      github.repository_owner == 'Katsute' &&
+      (github.repository_owner == 'Katsute' || github.repository_owner == 'KatsuteDev') &&
       github.actor != 'Sinon-bot' &&
       github.actor != 'dependabot[bot]' &&
       github.actor != 'dependabot-preview[bot]'
