@@ -108,6 +108,11 @@ abstract class Main {
                             type: "separator"
                         },
                         {
+                            label: "Config",
+                            type: "normal",
+                            click: () => require("child_process").exec(`explorer.exe "${cpath}"`)
+                        },
+                        {
                             label: "Quit",
                             type: "normal",
                             click: () => app.quit()
