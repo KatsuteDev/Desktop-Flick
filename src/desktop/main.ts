@@ -135,7 +135,7 @@ abstract class Main {
                             (event: Electron.Event, isAlwaysOnTop: boolean) => {
                                 new Notification({
                                     title: name,
-                                    body: "Desktop Flick is now running. Right click the tray icon to quit.",
+                                    body: `${name} is now running. Right click the tray icon to quit.`,
                                     icon: icon
                                 }).show();
                             }
