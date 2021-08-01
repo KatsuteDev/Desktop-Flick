@@ -94,7 +94,7 @@ abstract class Main {
                     Main.tray = new Tray(icon);
                     const menu: Menu = Menu.buildFromTemplate([
                         {
-                            label: "Desktop Flick",
+                            label: name,
                             type: "normal",
                             icon: nativeImage.createFromPath(icon).resize({width: 16, height: 16}),
                             enabled: false
