@@ -4,13 +4,14 @@
     </a>
     <h3>Desktop Flick - Japanese flick keyboard for desktop.</h3>
     <a href="https://github.com/KatsuteDev/Desktop-Flick/actions/workflows/npm_ci.yml"><img src="https://github.com/KatsuteDev/Desktop-Flick/actions/workflows/npm_ci.yml/badge.svg" title="npm CI"></a>
-    <a href="https://github.com/KatsuteDev/Desktop-Flick/actions/workflows/codeql.yml"><img src="https://github.com/KatsuteDev/Desktop-Flick/actions/workflows/codeql.yml/badge.svg" title="CodeQL"></a>
     <a href="https://github.com/KatsuteDev/Desktop-Flick/actions/workflows/deploy.yml"><img src="https://github.com/KatsuteDev/Desktop-Flick/actions/workflows/deploy.yml/badge.svg" title="Deploy"></a>
     <a href="https://github.com/KatsuteDev/Desktop-Flick/releases"><img title="version" src="https://img.shields.io/github/v/release/KatsuteDev/Desktop-Flick"></a>
     <a href="https://github.com/KatsuteDev/Desktop-Flick/blob/main/LICENSE"><img title="license" src="https://img.shields.io/github/license/KatsuteDev/Desktop-Flick"></a>
 </div>
 
 ## Overview
+
+> 💡 Did you know that Desktop Flick works with multiple languages?
 
 Desktop Flick uses your mobile device's keyboard and mirrors the output onto the desktop.
 
