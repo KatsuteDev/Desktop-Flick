@@ -8,6 +8,7 @@ jobs:
   make:
     name: Make
     runs-on: windows-latest
+    timeout-minutes: 60
     environment: Electron Make
     steps:
       - name: 📤 Checkout Repository

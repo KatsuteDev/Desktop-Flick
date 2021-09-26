@@ -23,6 +23,8 @@ Desktop Flick uses your mobile device's keyboard and mirrors the output onto the
 
 ## Setup
 
+> ⚠ Running this application may trigger your Antivirus. This is a FALSE POSITIVE. Add this application to the exception list if you don't want to see alerts.
+
 This application doesn't add a new keyboard, you need to add them to your mobile device first.
  - [Adding keyboard on iOS](https://support.apple.com/guide/iphone/add-or-change-keyboards-iph73b71eb/ios)
  - [Adding keyboard on Android](https://www.samsung.com/au/support/mobile-devices/customise-keyboard-layout/)
@@ -50,6 +52,6 @@ Default port is `7272`, this can be changed by going to the `config.json` and ch
 
 ### Contributing
 
-- Build using `npm run build` or `npm run prepare`
+- Build using `npm run build` or `npm run prepare`. Make sure to run `npm run rebuild` first.
 - Test builds using `npm run start:dev`
 - Package builds using `npm run make`
