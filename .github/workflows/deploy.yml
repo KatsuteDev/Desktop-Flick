@@ -5,35 +5,8 @@ on:
     types: [published]
 
 jobs:
-  make:
-    name: Make
-    runs-on: windows-latest
-    timeout-minutes: 60
-    environment: Electron Make
-    steps:
-      - name: 📤 Checkout Repository
-        uses: actions/checkout@v2.3.4
-
-      - name: 📚 Install npm
-        uses: actions/setup-node@v2.4.1
-        with:
-          node-version: 14
-          architecture: x64
-
-      - name: ✔ Compile with npm
-        run: |
-          npm ci
-
-      - name: 🔄 Rebuild with Electron
-        run: |
-          npm run rebuild
-
-      - name: 📦 Package Executable
-        run: |
-          npm run make
-
-      - name: 🚀 Deploy to Releases
-        uses: AButler/upload-release-assets@v2.0
-        with:
-          files: 'out/make/**/*.exe;out/make/**/*.zip'
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+  deploy:
+    name: Deploy
+    uses: Katsute/Workflows/.github/workflows/npm.electron.deploy.yml@main
+    secrets:
+      token: ${{ secrets.GITHUB_TOKEN }}
