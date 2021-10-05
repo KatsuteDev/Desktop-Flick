@@ -1,4 +1,5 @@
 name: npm CI
+
 on:
   push: {}
   pull_request:
