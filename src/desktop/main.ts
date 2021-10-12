@@ -130,16 +130,6 @@ abstract class Main {
                         this.application = new Application(Main.auth);
                         this.application.start();
                         temp.destroy();
-
-                        Main.window.once("ready-to-show",
-                            (event: Electron.Event, isAlwaysOnTop: boolean) => {
-                                new Notification({
-                                    title: name,
-                                    body: `${name} is now running. Right click the tray icon to quit.`,
-                                    icon: icon
-                                }).show();
-                            }
-                        );
                     });
 
                     Main.auth.start(name, icon, app, port);
