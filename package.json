@@ -48,7 +48,7 @@
         "@types/qrcode": "^1.4.1",
         "copyfiles": "^2.4.1",
         "electron": "^13.2.3",
-        "electron-rebuild": "^3.2.3",
+        "electron-rebuild": "^3.2.5",
         "rimraf": "^3.0.2",
         "sass": "^1.43.4",
         "tslint": "^6.1.3",
