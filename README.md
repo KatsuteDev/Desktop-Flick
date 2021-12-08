@@ -52,6 +52,17 @@ Default port is `7272`, this can be changed by going to the `config.json` and ch
 
 ### Contributing
 
+<!-- GitHub Copilot Disclaimer -->
+<table>
+    <img alt="GitHub Copilot" align="left" src="https://raw.githubusercontent.com/KatsuteDev/.github/main/profile/copilot-dark.png#gh-dark-mode-only" width="50"><img alt="GitHub Copilot" align="left" src="https://raw.githubusercontent.com/KatsuteDev/.github/main/profile/copilot-light.png#gh-light-mode-only" width="50">
+    <p>GitHub Copilot is <b>strictly prohibited</b> on this repository.<br>Pulls using this will be rejected.</p>
+</table>
+<!-- GitHub Copilot Disclaimer -->
+
 - Build using `npm run build` or `npm run prepare`. Make sure to run `npm run rebuild` first.
 - Test builds using `npm run start:dev`
 - Package builds using `npm run make`
+
+### License
+
+This library is released under the [GNU General Public License (GPL) v2.0](https://github.com/KatsuteDev/Desktop-Flick/blob/main/LICENSE).
