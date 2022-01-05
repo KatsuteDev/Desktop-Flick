@@ -65,4 +65,4 @@ Default port is `7272`, this can be changed by going to the `config.json` and ch
 
 ### License
 
-This library is released under the [GNU General Public License (GPL) v2.0](https://github.com/KatsuteDev/Desktop-Flick/blob/main/LICENSE).
+This software is released under the [GNU General Public License (GPL) v2.0](https://github.com/KatsuteDev/Desktop-Flick/blob/main/LICENSE).
