@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Katsute
+ * Copyright (C) 2022 Katsute
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -133,25 +133,23 @@ class Application {
         this.window!.hide();
         this.window!.webContents.send("input", "");
         if(this.buffer != "")
-            clipboard.copy(this.buffer.toString()) // weird node defect
-                .then(() => keyboard.pressKey(Key.LeftControl, Key.V)
-                    .then(() => {
-                            clipboard.copy("");
-                            keyboard.releaseKey(Key.LeftControl, Key.V);
-                        }));
+            clipboard // weird node defect ↓
+                .copy(this.buffer.toString())
+                .then(() => keyboard.pressKey(Key.LeftControl, Key.V))
+                .then(() => keyboard.releaseKey(Key.LeftControl, Key.V))
+                .then(() => clipboard.copy(this.buffer = ""));
     };
 
     private adjustPosition(window: BrowserWindow): void {
-        if(dev) return;
-
         if(!window.isDestroyed() && window.isVisible())
-            mouse.getPosition().then((point: Point) => {
-                this.getPreferredPosition(point, window).then((pos: Position) => {
+            mouse
+                .getPosition()
+                .then((point: Point) => this.getPreferredPosition(point, window))
+                .then((pos: Position) => {
                     const p: number[] = window.getPosition();
                     if(p[0] != pos.x || p[1] != pos.y)
                         window.setPosition(pos.x, pos.y);
                 });
-            });
     }
 
     private async getPreferredPosition(point: Point, window: BrowserWindow): Promise<Position> {
