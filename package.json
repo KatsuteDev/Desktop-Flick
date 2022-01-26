@@ -1,6 +1,6 @@
 {
     "name": "desktop-flick",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "description": "Finally, a Japanese flick keyboard for deskop.",
     "private": true,
     "main": "dist/desktop/main.js",
@@ -60,7 +60,7 @@
             "packagerConfig": {
                 "name": "Desktop Flick",
                 "icon": "icon.ico",
-                "appCopyright": "© Katsute 2021",
+                "appCopyright": "© Katsute 2022",
                 "ignore": [
                     "^/\\.github",
                     "^/src",
