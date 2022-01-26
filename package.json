@@ -28,14 +28,14 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/Katsute/Desktop-Flick.git"
+        "url": "git+https://github.com/KatsuteDev/Desktop-Flick.git"
     },
     "author": "Katsute",
     "license": "GPL-2.0",
     "bugs": {
-        "url": "https://github.com/Katsute/Desktop-Flick/issues"
+        "url": "https://github.com/KatsuteDev/Desktop-Flick/issues"
     },
-    "homepage": "https://github.com/Katsute/Desktop-Flick#readme",
+    "homepage": "https://github.com/KatsuteDev/Desktop-Flick#readme",
     "dependencies": {
         "@nut-tree/nut-js": "2.0.1",
         "electron-squirrel-startup": "1.0.0",
