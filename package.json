@@ -1,6 +1,6 @@
 {
     "name": "desktop-flick",
-    "version": "1.2.1",
+    "version": "1.2.2",
     "description": "Finally, a Japanese flick keyboard for deskop.",
     "private": true,
     "main": "dist/desktop/main.js",
