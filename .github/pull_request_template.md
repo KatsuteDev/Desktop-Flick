@@ -3,6 +3,7 @@
 
  - [ ] I have checked that no other similar pull request already exists.
  - [ ] My code follows the general code style as the rest of the code.
+ - [ ] I have added relevant comments.
  - [ ] Build compiles.
 
 ### GitHub Copilot Disclaimer
