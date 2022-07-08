@@ -17,7 +17,10 @@
  */
 
 import { clipboard, Key, keyboard, mouse, Point } from "@nut-tree/nut-js";
-import { app, BrowserWindow, ipcMain, screen } from "electron";
+import { app, ipcMain, screen } from "electron";
+import { BrowserWindow } from "@electron/remote";
+
+import remote from "@electron/remote/main";
 
 import { Authenticator } from "../auth/authenticator";
 import { Handler } from "../eventListener";
@@ -59,7 +62,7 @@ class Application {
 
     static bounds: Bounds;
 
-    private window?: BrowserWindow;
+    private window?: Electron.CrossProcessExports.BrowserWindow;
     private readonly authenticator: Authenticator;
 
     constructor(authenticator: Authenticator){
@@ -67,6 +70,8 @@ class Application {
     }
 
     public start(): void {
+        remote.initialize();
+
         this.window = new BrowserWindow({
             alwaysOnTop: true,
             hasShadow: false,
@@ -86,11 +91,13 @@ class Application {
             webPreferences: {
                 nodeIntegration: true,
                 contextIsolation: true,
-                enableRemoteModule: false,
                 devTools: dev,
                 preload: path.join(__dirname, "../", "interface.js")
             }
         });
+
+        remote.enable(this.window.webContents);
+
         if(!dev)
             this.window.removeMenu();
 
@@ -140,7 +147,7 @@ class Application {
                 .then(() => clipboard.copy(this.buffer = ""));
     };
 
-    private adjustPosition(window: BrowserWindow): void {
+    private adjustPosition(window: Electron.CrossProcessExports.BrowserWindow): void {
         if(!window.isDestroyed() && window.isVisible())
             mouse
                 .getPosition()
@@ -152,7 +159,7 @@ class Application {
                 });
     }
 
-    private async getPreferredPosition(point: Point, window: BrowserWindow): Promise<Position> {
+    private async getPreferredPosition(point: Point, window: Electron.CrossProcessExports.BrowserWindow): Promise<Position> {
         if(!Application.bounds) return point;
 
         const size: number[] = window.getSize();

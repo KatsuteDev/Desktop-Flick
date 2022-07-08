@@ -16,7 +16,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import { app, BrowserWindow, Menu, nativeImage, Notification, Tray } from "electron";
+import { app, Menu, nativeImage, Tray } from "electron";
 
 import { Application } from "./app/app";
 import { Authenticator } from "./auth/authenticator";
@@ -58,17 +58,17 @@ const port: number = typeof json["port"] == "number" ? json["port"] : defPort;
 
 abstract class Main {
 
-    private static window: BrowserWindow;
+    private static window: Electron.CrossProcessExports.BrowserWindow;
     private static tray: Tray;
 
     private static application: Application;
     private static auth: Authenticator;
 
     public static async main(): Promise<void> {
-        if(require('electron-squirrel-startup') || !app.requestSingleInstanceLock())
+        if(require("electron-squirrel-startup") || !app.requestSingleInstanceLock())
             return app.quit();
 
-        const ip: string = `${await Authenticator.getIP()}:${port}`;
+        const ip: string = `${Authenticator.getIP()}:${port}`;
 
         app
             .on("second-instance",
@@ -124,7 +124,7 @@ abstract class Main {
                     Main.auth = new Authenticator()
 
                     Main.auth.on("authenticated", (...argv: any[]) => {
-                        const temp: BrowserWindow = Main.window;
+                        const temp: Electron.CrossProcessExports.BrowserWindow = Main.window;
                         Main.window.hide();
 
                         this.application = new Application(Main.auth);
@@ -137,11 +137,11 @@ abstract class Main {
             );
     }
 
-    public static setActiveWindow(window: BrowserWindow): void {
+    public static setActiveWindow(window: Electron.CrossProcessExports.BrowserWindow): void {
         Main.window = window;
     }
 
-    public static getActiveWindow(): BrowserWindow {
+    public static getActiveWindow(): Electron.CrossProcessExports.BrowserWindow {
         return Main.window;
     }
 
