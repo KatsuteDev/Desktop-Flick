@@ -16,7 +16,9 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import { app, Menu, nativeImage, Tray } from "electron";
+Error.stackTraceLimit = Infinity;
+
+import { app, BrowserWindow, Menu, nativeImage, Tray } from "electron";
 
 import { Application } from "./app/app";
 import { Authenticator } from "./auth/authenticator";
@@ -58,7 +60,7 @@ const port: number = typeof json["port"] == "number" ? json["port"] : defPort;
 
 abstract class Main {
 
-    private static window: Electron.CrossProcessExports.BrowserWindow;
+    private static window: BrowserWindow;
     private static tray: Tray;
 
     private static application: Application;
@@ -110,7 +112,7 @@ abstract class Main {
                         {
                             label: "Config",
                             type: "normal",
-                            click: () => require("child_process").exec(`explorer.exe "${cpath}"`)
+                            click: () => require("child_process").exec(`explorer.exe /select,"${cpath}"`)
                         },
                         {
                             label: "Quit",
@@ -120,11 +122,12 @@ abstract class Main {
                     ]);
                     Main.tray.setToolTip(name);
                     Main.tray.setContextMenu(menu);
+                    Main.tray.on("click", () => Main.tray.popUpContextMenu());
 
                     Main.auth = new Authenticator()
 
                     Main.auth.on("authenticated", (...argv: any[]) => {
-                        const temp: Electron.CrossProcessExports.BrowserWindow = Main.window;
+                        const temp: BrowserWindow = Main.window;
                         Main.window.hide();
 
                         this.application = new Application(Main.auth);
@@ -137,11 +140,11 @@ abstract class Main {
             );
     }
 
-    public static setActiveWindow(window: Electron.CrossProcessExports.BrowserWindow): void {
+    public static setActiveWindow(window: BrowserWindow): void {
         Main.window = window;
     }
 
-    public static getActiveWindow(): Electron.CrossProcessExports.BrowserWindow {
+    public static getActiveWindow(): BrowserWindow {
         return Main.window;
     }
 
@@ -151,10 +154,12 @@ process.on("unhandledRejection", (error: Error, promise) => {
     console.error(`Unhandled rejection at:\n  Promise ${promise}\n  ${error.stack}`);
     if(app)
         app.quit();
+    process.exit(-1);
 });
 
 Main.main().catch((error: Error) => {
     console.error(error.stack);
     if(app)
         app.quit();
+    process.exit(-1);
 });

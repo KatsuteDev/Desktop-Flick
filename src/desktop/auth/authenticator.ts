@@ -16,9 +16,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import { App } from "electron";
-import { BrowserWindow } from "@electron/remote";
-import remote from "@electron/remote/main";
+import { App, BrowserWindow } from "electron";
 
 import qrcode from "qrcode";
 
@@ -65,10 +63,8 @@ class Authenticator extends EventListener {
             }
         );
 
-        remote.initialize();
-
         // initialize window
-        const window: Electron.CrossProcessExports.BrowserWindow = new BrowserWindow({
+        const window: BrowserWindow = new BrowserWindow({
             title: `${appname} Pairing`,
             icon,
             show: false,
@@ -91,8 +87,6 @@ class Authenticator extends EventListener {
                 preload: path.join(__dirname, "../", "interface.js")
             }
         });
-
-        remote.enable(window.webContents);
 
         if(!dev)
             window.removeMenu(); // disable dev tools

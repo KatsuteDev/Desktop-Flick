@@ -22,8 +22,8 @@ import { Authenticator } from "./authenticator";
 import { IncomingMessage, OutgoingHttpHeaders, RequestListener, ServerResponse } from "http";
 import fs from "fs";
 import path from "path";
-import {ipcMain } from "electron";
-import { BrowserWindow } from "@electron/remote";
+
+import { BrowserWindow, ipcMain } from "electron";
 
 export { RequestHandler }
 
@@ -50,9 +50,9 @@ class RequestHandler extends EventListener {
     private static readonly js      : string = fs.readFileSync(path.join(__dirname, "../../", "mobile", "index.js"), "utf-8");
 
     private readonly appname: string;
-    private readonly window: Electron.CrossProcessExports.BrowserWindow;
+    private readonly window: BrowserWindow;
 
-    constructor(appname: string, window: Electron.CrossProcessExports.BrowserWindow){
+    constructor(appname: string, window: BrowserWindow){
         super();
         this.appname = appname;
         this.window = window;

@@ -17,10 +17,7 @@
  */
 
 import { clipboard, Key, keyboard, mouse, Point } from "@nut-tree/nut-js";
-import { app, ipcMain, screen } from "electron";
-import { BrowserWindow } from "@electron/remote";
-
-import remote from "@electron/remote/main";
+import { app, BrowserWindow, ipcMain, screen } from "electron";
 
 import { Authenticator } from "../auth/authenticator";
 import { Handler } from "../eventListener";
@@ -70,8 +67,6 @@ class Application {
     }
 
     public start(): void {
-        remote.initialize();
-
         this.window = new BrowserWindow({
             alwaysOnTop: true,
             hasShadow: false,
@@ -95,8 +90,6 @@ class Application {
                 preload: path.join(__dirname, "../", "interface.js")
             }
         });
-
-        remote.enable(this.window.webContents);
 
         if(!dev)
             this.window.removeMenu();
