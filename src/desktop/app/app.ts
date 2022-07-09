@@ -86,11 +86,11 @@ class Application {
             webPreferences: {
                 nodeIntegration: true,
                 contextIsolation: true,
-                enableRemoteModule: false,
                 devTools: dev,
                 preload: path.join(__dirname, "../", "interface.js")
             }
         });
+
         if(!dev)
             this.window.removeMenu();
 

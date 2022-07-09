@@ -16,7 +16,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import { app, BrowserWindow, Menu, nativeImage, Notification, Tray } from "electron";
+import { app, BrowserWindow, Menu, nativeImage, Tray } from "electron";
 
 import { Application } from "./app/app";
 import { Authenticator } from "./auth/authenticator";
@@ -65,10 +65,10 @@ abstract class Main {
     private static auth: Authenticator;
 
     public static async main(): Promise<void> {
-        if(require('electron-squirrel-startup') || !app.requestSingleInstanceLock())
+        if(require("electron-squirrel-startup") || !app.requestSingleInstanceLock())
             return app.quit();
 
-        const ip: string = `${await Authenticator.getIP()}:${port}`;
+        const ip: string = `${Authenticator.getIP()}:${port}`;
 
         app
             .on("second-instance",
@@ -110,7 +110,7 @@ abstract class Main {
                         {
                             label: "Config",
                             type: "normal",
-                            click: () => require("child_process").exec(`explorer.exe "${cpath}"`)
+                            click: () => require("child_process").exec(`explorer.exe /select,"${cpath}"`)
                         },
                         {
                             label: "Quit",
@@ -120,6 +120,7 @@ abstract class Main {
                     ]);
                     Main.tray.setToolTip(name);
                     Main.tray.setContextMenu(menu);
+                    Main.tray.on("click", () => Main.tray.popUpContextMenu());
 
                     Main.auth = new Authenticator()
 

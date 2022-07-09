@@ -17,6 +17,7 @@
  */
 
 import { App, BrowserWindow } from "electron";
+
 import qrcode from "qrcode";
 
 import { RequestHandler } from "./requestHandler";
@@ -82,13 +83,14 @@ class Authenticator extends EventListener {
             webPreferences: {
                 nodeIntegration: true,
                 contextIsolation: true,
-                enableRemoteModule: false,
                 devTools: dev,
                 preload: path.join(__dirname, "../", "interface.js")
             }
         });
+
         if(!dev)
             window.removeMenu(); // disable dev tools
+
         window.loadFile(path.join(__dirname, "index.html"));
         window.once("ready-to-show",
             (event: Electron.Event, isAlwaysOnTop: boolean) => {

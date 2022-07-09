@@ -22,6 +22,7 @@ import { Authenticator } from "./authenticator";
 import { IncomingMessage, OutgoingHttpHeaders, RequestListener, ServerResponse } from "http";
 import fs from "fs";
 import path from "path";
+
 import { BrowserWindow, ipcMain } from "electron";
 
 export { RequestHandler }
