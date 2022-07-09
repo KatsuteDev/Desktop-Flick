@@ -19,7 +19,7 @@
 const input: HTMLInputElement = document.getElementById("text-input") as HTMLInputElement;
 
 // handle IME events
-let before: string = ""; // content before IME (used for stiching)
+let before: string = ""; // content before IME (used for stitching)
 let isTypingIME: boolean = false;
 input.addEventListener("compositionstart", () => {
     isTypingIME = true;
