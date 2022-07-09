@@ -16,8 +16,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-Error.stackTraceLimit = Infinity;
-
 import { app, BrowserWindow, Menu, nativeImage, Tray } from "electron";
 
 import { Application } from "./app/app";
@@ -154,12 +152,10 @@ process.on("unhandledRejection", (error: Error, promise) => {
     console.error(`Unhandled rejection at:\n  Promise ${promise}\n  ${error.stack}`);
     if(app)
         app.quit();
-    process.exit(-1);
 });
 
 Main.main().catch((error: Error) => {
     console.error(error.stack);
     if(app)
         app.quit();
-    process.exit(-1);
 });

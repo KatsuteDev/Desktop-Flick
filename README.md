@@ -59,9 +59,9 @@ Default port is `7272`, this can be changed by going to the `config.json` and ch
 </table>
 <!-- GitHub Copilot Disclaimer -->
 
-- Build using `npm run build` or `npm run prepare`. Make sure to run `npm run rebuild` first.
-- Test builds using `npm run start:dev`
-- Package builds using `npm run make`
+ - Build using `npm run build` or `npm run prepare`. Make sure to run `npm run rebuild` first.
+ - Test builds using `npm run start:dev`
+ - Package builds using `npm run make`
 
 ### License
 

@@ -59,7 +59,7 @@ class Application {
 
     static bounds: Bounds;
 
-    private window?: Electron.CrossProcessExports.BrowserWindow;
+    private window?: BrowserWindow;
     private readonly authenticator: Authenticator;
 
     constructor(authenticator: Authenticator){
@@ -140,7 +140,7 @@ class Application {
                 .then(() => clipboard.copy(this.buffer = ""));
     };
 
-    private adjustPosition(window: Electron.CrossProcessExports.BrowserWindow): void {
+    private adjustPosition(window: BrowserWindow): void {
         if(!window.isDestroyed() && window.isVisible())
             mouse
                 .getPosition()
@@ -152,7 +152,7 @@ class Application {
                 });
     }
 
-    private async getPreferredPosition(point: Point, window: Electron.CrossProcessExports.BrowserWindow): Promise<Position> {
+    private async getPreferredPosition(point: Point, window: BrowserWindow): Promise<Position> {
         if(!Application.bounds) return point;
 
         const size: number[] = window.getSize();
