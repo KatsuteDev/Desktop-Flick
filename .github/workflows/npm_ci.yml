@@ -11,6 +11,5 @@ jobs:
     uses: Katsute/Workflows/.github/workflows/npm.ci.yml@main
     with:
       os: windows-latest # required for rebuild
-      timeout: 20
       rebuild: true
       test: false
