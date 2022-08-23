@@ -10,5 +10,6 @@ jobs:
     uses: Katsute/Workflows/.github/workflows/npm.electron.deploy.yml@main
     with:
       environment: Electron Make
+      rebuild: false
     secrets:
       token: ${{ secrets.GITHUB_TOKEN }}
