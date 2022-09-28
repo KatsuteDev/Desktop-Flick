@@ -1,11 +1,12 @@
 {
-    "include": ["src/"],
     "compilerOptions": {
         "target": "es6",
         "module": "commonjs",
+        "alwaysStrict": true,
         "strict": true,
         "esModuleInterop": true,
         "skipLibCheck": true,
-        "sourceMap": true
+        "sourceMap": true,
+        "removeComments": true
     }
 }
