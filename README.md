@@ -1,6 +1,6 @@
 <div align="center">
     <a href="https://github.com/KatsuteDev/Desktop-Flick#readme">
-        <img src="https://raw.githubusercontent.com/KatsuteDev/Desktop-Flick/main/banner.png" alt="Desktop Flick">
+        <img src="https://raw.githubusercontent.com/KatsuteDev/Desktop-Flick/main/assets/banner.png" alt="Desktop Flick">
     </a>
     <h3>Desktop Flick - Japanese flick keyboard for desktop.</h3>
 </div>
@@ -8,7 +8,7 @@
 Desktop Flick uses your mobile device's keyboard and mirrors the output onto the desktop. This application works with any mobile keyboard language.
 
 <div align="center">
-    <img align="center" src="https://raw.githubusercontent.com/KatsuteDev/Desktop-Flick/main/sample.gif" width="750">
+    <img align="center" src="https://raw.githubusercontent.com/KatsuteDev/Desktop-Flick/main/assets/sample.gif" width="750">
 </div>
 
 ## 📃 Installation

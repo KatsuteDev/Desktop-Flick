@@ -1,6 +1,6 @@
 {
     "name": "desktop-flick",
-    "version": "1.2.4",
+    "version": "1.2.5",
     "description": "Finally, a Japanese flick keyboard for desktop.",
     "private": true,
     "main": "dist/desktop/main.js",
@@ -10,7 +10,7 @@
         "prune": "npm prune && npm i --package-lock --ignore-scripts",
         "update": "npm update -D && npm i --package-lock --ignore-scripts && npm run prune",
         "// -- build -- //": "",
-        "build:cp": "copyfiles -u 1 src/**/*.html dist && copyfiles icon.ico dist",
+        "build:cp": "copyfiles -u 1 src/**/*.html dist && copyfiles -u 1 assets/icon.ico dist",
         "build:sass": "sass src:dist/",
         "build:typescript": "tsc --outDir dist",
         "build": "npm run build:cp & npm run build:sass & npm run build:typescript",
@@ -19,8 +19,6 @@
         "start:dev": "npm run prepare && electron .",
         "start:forge": "npm run prepare && electron-forge start",
         "start": "electron-forge start",
-        "// -- test -- //": "",
-        "test": "echo \"Error: no test specified\" && exit 1",
         "// -- deploy -- //": "",
         "package": "npm run prepare && electron-forge package",
         "make": "npm run prepare && electron-forge make"
@@ -44,10 +42,10 @@
         "@electron-forge/cli": "6.0.0",
         "@electron-forge/maker-squirrel": "6.0.0",
         "@electron-forge/maker-zip": "6.0.0",
-        "@types/node": "18.11.0",
+        "@types/node": "18.11.9",
         "@types/qrcode": "1.5.0",
         "copyfiles": "2.4.1",
-        "electron": "21.0.0",
+        "electron": "21.2.2",
         "rimraf": "3.0.2",
         "sass": "1.55.0",
         "tslint": "6.1.3",
@@ -57,7 +55,7 @@
         "forge": {
             "packagerConfig": {
                 "name": "Desktop Flick",
-                "icon": "icon.ico",
+                "icon": "assets/icon.ico",
                 "appCopyright": "© Katsute 2022",
                 "ignore": [
                     "^/\\.github",
@@ -72,8 +70,8 @@
                     "name": "@electron-forge/maker-squirrel",
                     "config": {
                         "name": "Desktop-Flick",
-                        "setupIcon": "icon.ico",
-                        "loadingGif": "installer.gif"
+                        "setupIcon": "assets/icon.ico",
+                        "loadingGif": "assets/installer.gif"
                     }
                 },
                 {
