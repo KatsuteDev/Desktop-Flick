@@ -39,13 +39,13 @@
         "qrcode": "1.5.1"
     },
     "devDependencies": {
-        "@electron-forge/cli": "6.0.1",
-        "@electron-forge/maker-squirrel": "6.0.1",
-        "@electron-forge/maker-zip": "6.0.1",
+        "@electron-forge/cli": "^6.0.3",
+        "@electron-forge/maker-squirrel": "^6.0.3",
+        "@electron-forge/maker-zip": "^6.0.3",
         "@types/node": "18.11.9",
         "@types/qrcode": "1.5.0",
         "copyfiles": "2.4.1",
-        "electron": "21.2.3",
+        "electron": "^21.3.0",
         "rimraf": "3.0.2",
         "sass": "1.56.1",
         "tslint": "6.1.3",
