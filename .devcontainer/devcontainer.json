@@ -1,6 +1,6 @@
 {
     "image": "node:18",
-    "onCreateCommand": "npm i",
+    "postAttachCommand": "npm i",
     "shutdownAction": "stopContainer",
     "forwardPorts": [
         7272
