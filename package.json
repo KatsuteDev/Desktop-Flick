@@ -45,7 +45,7 @@
         "@types/node": "18.11.9",
         "@types/qrcode": "1.5.0",
         "copyfiles": "2.4.1",
-        "electron": "^21.3.0",
+        "electron": "^21.3.1",
         "rimraf": "3.0.2",
         "sass": "1.56.1",
         "tslint": "6.1.3",
