@@ -1,7 +1,7 @@
 {
     "name": "desktop-flick",
-    "version": "1.2.5",
-    "description": "Finally, a Japanese flick keyboard for desktop.",
+    "version": "1.2.6",
+    "description": "Japanese flick keyboard for desktop.",
     "private": true,
     "main": "dist/desktop/main.js",
     "scripts": {
@@ -39,13 +39,13 @@
         "qrcode": "1.5.1"
     },
     "devDependencies": {
-        "@electron-forge/cli": "^6.0.3",
-        "@electron-forge/maker-squirrel": "^6.0.3",
-        "@electron-forge/maker-zip": "^6.0.3",
-        "@types/node": "18.11.9",
+        "@electron-forge/cli": "6.0.4",
+        "@electron-forge/maker-squirrel": "6.0.4",
+        "@electron-forge/maker-zip": "6.0.4",
+        "@types/node": "18.11.10",
         "@types/qrcode": "1.5.0",
         "copyfiles": "2.4.1",
-        "electron": "^21.3.0",
+        "electron": "22.0.0",
         "rimraf": "3.0.2",
         "sass": "1.56.1",
         "tslint": "6.1.3",
