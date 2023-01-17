@@ -133,11 +133,11 @@ class Application {
         this.window!.hide();
         this.window!.webContents.send("input", "");
         if(this.buffer != "")
-            clipboard // weird node defect ↓
-                .copy(this.buffer.toString())
+            clipboard  // weird node defect ↓
+                .setContent(this.buffer.toString())
                 .then(() => keyboard.pressKey(Key.LeftControl, Key.V))
                 .then(() => keyboard.releaseKey(Key.LeftControl, Key.V))
-                .then(() => clipboard.copy(this.buffer = ""));
+                .then(() => clipboard.setContent(this.buffer = ""));
     };
 
     private adjustPosition(window: BrowserWindow): void {
