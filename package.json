@@ -1,6 +1,6 @@
 {
     "name": "desktop-flick",
-    "version": "1.2.6",
+    "version": "1.2.7",
     "description": "Japanese flick keyboard for desktop.",
     "private": true,
     "main": "dist/desktop/main.js",
@@ -42,7 +42,7 @@
         "@electron-forge/cli": "6.0.4",
         "@electron-forge/maker-squirrel": "6.0.4",
         "@electron-forge/maker-zip": "6.0.4",
-        "@types/node": "18.11.10",
+        "@types/node": "18.11.18",
         "@types/qrcode": "1.5.0",
         "copyfiles": "2.4.1",
         "electron": "22.0.2",
@@ -56,7 +56,7 @@
             "packagerConfig": {
                 "name": "Desktop Flick",
                 "icon": "assets/icon.ico",
-                "appCopyright": "© Katsute 2022",
+                "appCopyright": "© Katsute 2023",
                 "ignore": [
                     "^/\\.github",
                     "^/src",
