@@ -1,6 +1,6 @@
 {
     "name": "desktop-flick",
-    "version": "1.2.7",
+    "version": "1.2.8",
     "description": "Japanese flick keyboard for desktop.",
     "private": true,
     "main": "dist/desktop/main.js",
@@ -45,7 +45,7 @@
         "@types/node": "18.13.0",
         "@types/qrcode": "1.5.0",
         "copyfiles": "2.4.1",
-        "electron": "22.2.0",
+        "electron": "22.3.0",
         "rimraf": "3.0.2",
         "sass": "1.58.2",
         "typescript": "4.9.5"
@@ -57,6 +57,7 @@
                 "icon": "assets/icon.ico",
                 "appCopyright": "Copyright © Katsute 2023",
                 "ignore": [
+                    "^/\\.devcontainer",
                     "^/\\.github",
                     "^/src",
                     "^/tsconfig.json",
