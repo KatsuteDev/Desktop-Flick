@@ -6,7 +6,7 @@
     "main": "dist/desktop/main.js",
     "scripts": {
         "// -- dev -- //": "",
-        "clean": "rimraf dist & rimraf out & rimraf config.json",
+        "clean": "rimraf --glob dist & rimraf --glob out & rimraf --glob config.json",
         "prune": "npm prune && npm i --package-lock --ignore-scripts",
         "update": "npm update -D && npm i --package-lock --ignore-scripts && npm run prune",
         "// -- build -- //": "",
@@ -46,7 +46,7 @@
         "@types/qrcode": "1.5.0",
         "copyfiles": "2.4.1",
         "electron": "22.3.1",
-        "rimraf": "3.0.2",
+        "rimraf": "4.3.0",
         "sass": "1.58.3",
         "typescript": "4.9.5"
     },
