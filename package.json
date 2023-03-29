@@ -39,7 +39,7 @@
         "qrcode": "1.5.1"
     },
     "devDependencies": {
-        "@electron-forge/cli": "6.0.5",
+        "@electron-forge/cli": "6.1.0",
         "@electron-forge/maker-squirrel": "6.1.0",
         "@electron-forge/maker-zip": "6.0.5",
         "@types/node": "18.15.0",
