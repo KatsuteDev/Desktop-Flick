@@ -1,6 +1,6 @@
 {
     "name": "desktop-flick",
-    "version": "1.2.8",
+    "version": "1.2.9",
     "description": "Japanese flick keyboard for desktop.",
     "private": true,
     "main": "dist/desktop/main.js",
@@ -49,6 +49,9 @@
         "rimraf": "5.0.0",
         "sass": "1.62.0",
         "typescript": "5.0.4"
+    },
+    "overrides": {
+        "xml2js": "0.5.0"
     },
     "config": {
         "forge": {
