@@ -48,7 +48,7 @@
         "electron": "22.3.12",
         "rimraf": "5.0.1",
         "sass": "1.62.1",
-        "typescript": "5.0.4"
+        "typescript": "5.1.3"
     },
     "overrides": {
         "xml2js": "0.5.0"
