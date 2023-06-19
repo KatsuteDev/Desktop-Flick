@@ -45,7 +45,7 @@
         "@types/node": "20.3.0",
         "@types/qrcode": "1.5.0",
         "copyfiles": "2.4.1",
-        "electron": "22.3.12",
+        "electron": "22.3.13",
         "rimraf": "5.0.1",
         "sass": "1.63.4",
         "typescript": "5.1.3"
