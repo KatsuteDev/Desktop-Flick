@@ -7,6 +7,28 @@
 
 Desktop Flick uses your mobile device's keyboard and mirrors the output onto the desktop. This application works with any mobile keyboard language.
 
+<table align="center">
+    <tr>
+        <td>
+            <div align="center">
+                <b>⚠️ Desktop Flick will reach the end of its service life on October 10, 2023 ⚠️</b>
+                <br>
+                <br>
+                <p>Switch to <a href="https://github.com/KatsuteDev/Language-Board#readme">Language Board</a> to continue receiving updates.</p>
+                <br>
+                <a href="https://github.com/KatsuteDev/Language-Board#readme">
+                    <img src="https://raw.githubusercontent.com/KatsuteDev/Language-Board/main/assets/icon.png" width=100>
+                    <h4>Language Board</h4>
+                </a>
+                <p>✔️ keyboard input controls</p>
+                <p>🏁 performance improvements</p>
+                <p>🆕 <kbd>enter</kbd> and <kbd>backspace</kbd> controls</p>
+                <p>🆕 mouse click and move controls</p>
+            </div>
+        </td>
+    </tr>
+</table>
+
 <div align="center">
     <img align="center" src="https://raw.githubusercontent.com/KatsuteDev/Desktop-Flick/main/assets/sample.gif" width="750">
 </div>
