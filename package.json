@@ -39,9 +39,9 @@
         "qrcode": "1.5.3"
     },
     "devDependencies": {
-        "@electron-forge/cli": "6.4.1",
-        "@electron-forge/maker-squirrel": "6.4.1",
-        "@electron-forge/maker-zip": "6.4.1",
+        "@electron-forge/cli": "6.4.2",
+        "@electron-forge/maker-squirrel": "6.4.2",
+        "@electron-forge/maker-zip": "6.4.2",
         "@types/node": "20.6.0",
         "@types/qrcode": "1.5.2",
         "copyfiles": "2.4.1",
