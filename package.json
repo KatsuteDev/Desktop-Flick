@@ -47,7 +47,7 @@
         "copyfiles": "2.4.1",
         "electron": "22.3.24",
         "rimraf": "5.0.1",
-        "sass": "1.66.1",
+        "sass": "1.67.0",
         "typescript": "5.2.2"
     },
     "overrides": {
