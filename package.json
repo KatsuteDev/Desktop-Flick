@@ -46,7 +46,7 @@
         "@types/qrcode": "1.5.2",
         "copyfiles": "2.4.1",
         "electron": "22.3.25",
-        "rimraf": "5.0.1",
+        "rimraf": "5.0.5",
         "sass": "1.68.0",
         "typescript": "5.2.2"
     },
